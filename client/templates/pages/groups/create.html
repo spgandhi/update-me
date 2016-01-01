@@ -1,0 +1,38 @@
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Add Group
+            </h1>
+            
+        </div>
+        <!-- /.col-lg-12 -->
+        <div class="col-lg-12">
+        	<form>
+              
+              <!-- Organiztion Name Field -->
+            <div class="form-group">
+                <label>Group Name</label>
+                <input ng-model="newGroup.name" type="text" class="form-control" placeholder="Group Name">
+            </div>
+
+            <!-- Organiztion Name Field -->
+            <div class="form-group">
+                <label>Admins</label>
+                <input type="text" id="group-admins" class="form-control">
+            </div>
+
+              <!-- Private Organization Checkbox -->
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="newGroup.options.isPrivate" value="false"> Private</label>
+            </div>
+
+
+
+
+
+              <button ng-click="addGroup()" type="submit" class="btn btn-default">Add Group</button>
+            </form>
+        </div>
+    </div>
+</div>

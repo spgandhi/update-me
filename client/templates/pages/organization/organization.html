@@ -1,0 +1,38 @@
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Organization
+                <button class="btn btn-default btn-xs pull-right" ui-sref="organization-create">Add<i class="fa fa-plus"></i></button>
+            </h1>
+            
+        </div>
+        <!-- /.col-lg-12 -->
+        <div class="col-lg-12">
+        	<table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Allowed Domain</th>
+                        <th>Private</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="org in organizations" ng-click="alert('Hello');">
+                        <td>{{org._id}}</td>
+                        <td>{{org.name}}</td>
+                        <td>{{org.options.domainAllowed}}</td>
+                        <td>{{org.options.isPrivate}}</td>
+                        <td><a type="button" class="btn btn-primary" href="/#/organization/{{org._id}}">Manage</a></td>
+                        <td><a type="button" class="btn btn-warning" href="/#/organization/{{org._id}}/edit">Edit</a></td>
+                        <td><button type="button" class="btn btn-danger" ng-click="organizations.remove(org); removeToast();">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
