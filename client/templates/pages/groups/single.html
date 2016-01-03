@@ -21,7 +21,7 @@
                                 </i>
                             </div>
                             <div class="col-xs-9 text-right">
-                                <div class="huge">26</div>
+                                <div class="huge">{{grp.options.posts}}</div>
                                 <div>Posts</div>
                             </div>
                         </div>
@@ -71,8 +71,8 @@
                                 </i>
                             </div>
                             <div class="col-xs-9 text-right">
-                                <div class="huge">15</div>
-                                <div>{{grp.roles['is-subscribed'].length}}</div>
+                                <div class="huge">{{grp.roles['is-subscribed'].length ? grp.roles['is-subscribed'].length : 0}}</div>
+                                <div>Subscribers</div>
                             </div>
                         </div>
                     </div>

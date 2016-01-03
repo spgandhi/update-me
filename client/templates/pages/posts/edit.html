@@ -1,0 +1,57 @@
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Edit Post
+            </h1>
+            
+        </div>
+        <!-- /.col-lg-12 -->
+        <div class="col-lg-12">
+        	<form>
+              
+              <!-- Organiztion Name Field -->
+            <div class="form-group">
+                <label>Title</label>
+                <input ng-model="post.title" type="text" class="form-control" placeholder="Title">
+            </div>
+
+            <!-- Organiztion Name Field -->
+            <div class="form-group">
+                <label>Content</label>
+                <textarea ng-model="post.content" type="text" class="form-control"></textarea>
+            </div>
+
+              <!-- Private Organization Checkbox -->
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="post.options.isEvent" value="false"> Is This An Event?</label>
+            </div>
+
+            <div ng-show="post.options.isEvent">
+                <h4>Event Detaials</h4>
+                <div class="row">
+                    <div class="form-group col-xs-12 col-lg-6">
+                        <label>Start Time</label>
+                        <input ng-model="post.start_time" id="start-time" class="form-control">
+                    </div>
+                    <div class="form-group col-xs-12 col-lg-6">
+                        <label>End Time</label>
+                        <input ng-model="post.end_time" id="end-time" class="form-control">
+                    </div>
+                    <div class="form-group col-xs-12">
+                        <label>Venue</label>
+                        <input class="form-control" ng-model="post.venue">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="sel1">Posted In</label>
+                <input type="text" ng-model="group_name" readonly="readonly" class="form-control" />
+            </div>
+
+            <button ng-click="addPost()" type="submit" class="btn btn-default">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>

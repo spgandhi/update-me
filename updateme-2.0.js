@@ -1,8 +1,22 @@
 Organizations = new Mongo.Collection('organizations');
 Groups = new Mongo.Collection('groups');
+Posts = new Mongo.Collection('posts');
 // orgUsers = new Mongo.Collection('users');
 
 if (Meteor.isClient) {
+  // data = {
+  //   organizations: {},
+  //   groups: {},
+  //   posts: {}
+  // }
+
+  // Meteor.subscribe('organizations', function(){
+  //   Meteor.subscribe('groups', function(){
+  //     console.log(Organizations.find());
+  //     console.log(Groups.find());
+  //   })     
+  // })
+      
   
   angular.module('update-me',['angular-meteor', 'accounts.ui', 'ui.router', 'ngAnimate', 'toastr']);
 
@@ -108,14 +122,147 @@ if (Meteor.isClient) {
           },
           controller: 'Group-Single'
         })
- 
+  
+        .state('post-create', {
+          url: '/post/create',
+          templateUrl: 'client/templates/pages/posts/create.html',
+          data: {
+            requireLogin: true
+          },
+          controller: 'Post-Create'
+        })
+
+        .state('posts', {
+          url: '/posts',
+          templateUrl: 'client/templates/pages/posts/posts.html',
+          data: {
+            requireLogin: true
+          },
+          controller : 'Posts'
+        })
+
+        .state('posts-edit',{
+          url: '/posts/:id/edit',
+          templateUrl: 'client/templates/pages/posts/edit.html',
+          data: {
+            requireLogin: true
+          },
+          controller : 'Posts-Edit'
+        })
+
       $urlRouterProvider.otherwise("/");
     });
+
+  angular.module('update-me').controller('Posts-Edit', ['$scope', 'toastr', '$stateParams', function($scope, toastr, $stateParams){
+    Meteor.subscribe('posts', function(){
+      $scope.post = Posts.findOne({_id:$stateParams['id']});
+      Meteor.subscribe('groups', function(){
+        $scope.group_name = Groups.findOne({_id: $scope.post.group}, {fields: {'name':1, '_id':0}}).name;
+      })
+
+      $('#start-time').datetimepicker({
+          sideBySide: true,
+          defaultDate: $scope.post.start_time
+        })
+        .on('dp.change', function(e){
+          $('#end-time').data('DateTimePicker').minDate(e.date);
+        });
+
+        $('#end-time').datetimepicker({
+          sideBySide: true,
+          useCurrent: false,
+          defaultDate: $scope.post.end_time
+        })
+        .on('dp.change', function(e){
+          $('#start-time').data('DateTimePicker').maxDate(e.date);
+        });
+        
+    })
+
+
+
+  }])
+
+  angular.module('update-me').controller('Posts', ['$scope', '$meteor', 'toastr', function($scope, $meteor, toastr){
+    Meteor.subscribe('posts', function(){
+      $scope.posts = Posts.find().fetch();
+    })
+  }])
+
+  angular.module('update-me').controller('Post-Create', ['$scope', '$meteor', 'toastr', function($scope, $meteor, toastr){
+    Meteor.subscribe('user-groups', function(){
+      $scope.groups = Groups.find().fetch();
+    })
+
+    $scope.newPost = {
+      title: '',
+      content: '',
+      options: {
+        isEvent:false
+      },
+      created_by: Meteor.userId()
+    }
+
+    $('#start-time').datetimepicker({
+      sideBySide: true
+    })
+    .on('dp.change', function(e){
+      $('#end-time').data('DateTimePicker').minDate(e.date);
+    });
+
+    $('#end-time').datetimepicker({
+      sideBySide: true,
+      useCurrent: false
+    })
+    .on('dp.change', function(e){
+      $('#start-time').data('DateTimePicker').maxDate(e.date);
+    });
+
+    $scope.addPost = function(){
+      
+      err = '';
+
+      // Checking for errors
+      if($scope.newPost.options.isEvent && $('#start-time').val().length == 0)
+        err = 'Please choose a start time'
+      if($scope.newPost.options.isEvent && $('#start-time').val().length == 0 && $('#end-time').val().length > 0 )
+          err = 'Please choose a start time';
+      if($scope.newPost.group === undefined || $scope.newPost.group == '')
+        err = 'Please choose a group.';
+      if($scope.newPost.content === undefined || $scope.newPost.content.length < 4)
+        err = 'Content should be min 4 characters.';
+      if($scope.newPost.title === undefined || $scope.newPost.title.length < 4)
+        err = 'Title should be min 4 characters.';
+
+      if(err != ''){
+        toastr.error(err, 'Error');
+        err = '';
+        return;
+      }
+
+      if( $scope.newPost.options.isEvent && $('#start-time').val().length > 0 ){
+        $scope.newPost.start_time =  new Date($('#start-time').val());
+        $scope.newPost.end_time = new Date($('#end-time').val());
+      }
+
+      Posts.insert($scope.newPost, function(){
+        toastr.success('New Post Added!', 'Success');
+        $scope.newPost = {
+          options: {
+            isEvent: false
+          }
+        };
+        
+        $('#start-time').val('')
+        $('#end-time').val('')
+      });
+    }
+
+  }])
 
   angular.module('update-me').controller('Group-Single', ['$scope', '$meteor', '$stateParams', 'toastr', function($scope, $meteor, $stateParams, toastr){
     Meteor.subscribe('groups',$stateParams['id'], function(){
       $scope.grp = Groups.findOne({_id: $stateParams['grp_id']});
-      console.log($scope.grp);
     })
   }])
 
@@ -145,7 +292,6 @@ if (Meteor.isClient) {
   angular.module('update-me').controller('Org-Edit', ['$scope', '$meteor', 'toastr', '$stateParams', function($scope, $meteor, toastr, $stateParams){
       Meteor.subscribe('organizations', function(){
         $scope.org = Organizations.findOne({_id: $stateParams['id']});
-        console.log($scope.org);
         $scope.allowed_domains = $scope.org.options['domainAllowed'];
         $('#allowed-domains').tokenfield({
           minLength: 3,
@@ -239,7 +385,8 @@ if (Meteor.isClient) {
 
     $scope.newGroup = {
       options: {
-        isPrivate: false
+        isPrivate: false,
+        posts: 0
       }
     }
 
@@ -389,9 +536,25 @@ if (Meteor.isClient) {
 
   angular.module('update-me').controller('Organization-Single', ['$scope', '$meteor','$stateParams', 'toastr', function($scope, $meteor, $stateParams, $toastr){
 
+    // $scope.totalPosts = 0;
+
     Meteor.subscribe('organizations', function(){
       $scope.org = Organizations.findOne($stateParams['id']);
     });
+
+    totalPosts = 0;
+    Meteor.subscribe('groups', function(){
+      
+      grp = Groups.find({org_id:$stateParams['id']}).fetch();
+      angular.forEach(grp, function(value, key){
+        totalPosts = totalPosts + value.options.posts;
+      })
+      
+      $scope.totalPosts = totalPosts;
+      
+    })
+      
+    // }
 
   }])
   
@@ -429,7 +592,7 @@ if (Meteor.isServer) {
   });
 
   Meteor.publish('groups', function(orgId){
-    return Groups.find({org_id: orgId});
+    return Groups.find({_id: {$in: Roles.getGroupsForUser( this.userId ) }});
   })
 
   Meteor.publish('organizations', function(){
@@ -438,6 +601,14 @@ if (Meteor.isServer) {
 
   Meteor.publish('allUsers', function(){
     return Meteor.users.find({},{'emails':1});
+  })
+
+   Meteor.publish('user-groups', function(){
+    return Groups.find({_id: {$in: Roles.getGroupsForUser( this.userId ) }});
+  })
+
+  Meteor.publish('posts', function(){
+    return Posts.find({group: {$in: Roles.getGroupsForUser( this.userId) }});
   })
 
   Organizations.after.insert(function(userId, doc){
@@ -492,6 +663,14 @@ if (Meteor.isServer) {
       Roles.setUserRoles(user_id, [], doc._id);
     }
 
+  })
+
+  Posts.after.insert(function(userId, doc){
+    Groups.update({_id: doc.group}, {$inc: {'options.posts': 1} });
+  })
+
+  Posts.after.remove(function(userId, doc){
+    Groups.update({_id: doc.group}, {$inc: {'options.posts': -1} });
   })
 
 }
