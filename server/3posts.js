@@ -1,3 +1,22 @@
+Posts.allow({
+
+	insert: function(userId, doc){
+		return true;
+	},
+
+  	remove: function (userId, doc) {
+  		// check for proper permissions using passed arguments if any here
+  		return true;
+	},
+
+	update: function(){
+		return true;
+	}
+
+	
+
+});
+
 // Publish
 Meteor.publish('allUsers', function(){
   return Meteor.users.find({},{'emails':1});
@@ -19,12 +38,12 @@ Meteor.publish('posts', function(reason){
 
 // After Insert
 Posts.after.insert(function(userId, doc){
-  Groups.update({_id: doc.group._id}, {$inc: {'options.posts': 1} });
+  // Groups.update({_id: doc.group._id}, {$inc: {'options.posts': 1} });
 })
 
 // 
 Posts.after.remove(function(userId, doc){
-  Groups.update({_id: doc.group._id}, {$inc: {'options.posts': -1} });
+  // Groups.update({_id: doc.group._id}, {$inc: {'options.posts': -1} });
 })
 
 // Before Insert

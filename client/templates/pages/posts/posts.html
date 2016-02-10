@@ -31,7 +31,7 @@
                         <!-- <td ng-init="author=findAuthor(post.created_by);">{{author}}</td> -->
                         <td></td>
                         <td><button class="btn btn-warning" ng-click="goto(post._id)">Edit</button></td>
-                        <td><button class="btn btn-danger" ng-click="posts.remove(post); removeToast();">Delete</button></td>
+                        <td><button class="btn btn-danger" ng-click="removePost(post); removeToast();">Delete</button></td>
                         <td ng-show="post.post_status=='draft' && userRole == 'superAdmin'"><button class="btn" ng-click="post.post_status = 'publish'; publishToast();">Publish Now</button></td>
                         <td ng-show="post.post_status=='draft' && userRole == 'superAdmin'">Draft</td>
                     </tr>

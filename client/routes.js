@@ -74,7 +74,7 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
         requireLogin: true,
         onlySuperAdmin: false
       },
-      controller: 'Group'
+      controller: 'Group-Create'
     })
 
     .state('groups', {

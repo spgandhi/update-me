@@ -2,21 +2,29 @@
 angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', function($scope, alldata, $meteor, toastr){
   
   testing = false;
-  
-    Meteor.call('getUsersOrg', function(err,userOrgs){
 
-      $scope.groups = Groups.find(
-      { 
-        $or: [
-          {'roles.can-manage': { $in: [ Meteor.user().emails[0].address ] } }, 
-          {'orgId': { $in: userOrgs } }
-        ]
-      }, 
-      {
-        fields: {'name':1}
-      })
-      .fetch();  
-  });
+  var promise = alldata.check();
+
+  promise.then(function(){
+
+      Meteor.call('getUsersOrg', function(err,userOrgs){
+
+        $scope.groups = Groups.find(
+        { 
+          $or: [
+            {'roles.can-manage': { $in: [ Meteor.user().emails[0].address ] } }, 
+            {'orgId': { $in: userOrgs } }
+          ]
+        }, 
+        {
+          fields: {'name':1}
+        })
+        .fetch();  
+    });
+
+  })
+  
+    
 
   $scope.newPost = {
     title: '',
@@ -99,7 +107,10 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
     if(testing){
       console.log($scope.newPost)
     } else {
+
+      // var promise = alldata.add('post', $scope.newPost);
       Posts.insert($scope.newPost, function(){
+
         toastr.success('New Post Added!', 'Success');
         $scope.newPost = {
           title: '',
@@ -111,14 +122,13 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
           created_by: Meteor.userId(),
           created_at: Date.now()
         }
-        
         $('#start-time').val('');
         $('#end-time').val('');
         $('#deadline').val('');
-      });
-    }
 
-    $scope.appLoading = false;
+      })      
+
+    }
 
   }
 
@@ -127,15 +137,12 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
 // Edit
 angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toastr', '$stateParams', function($scope, alldata , toastr, $stateParams){
   
-  console.log('called post-edit');
   $scope.userRole = 'user';
 
   var promise = alldata.check();
-  console.log('before the promise');
   
   promise.then(function(data){
     
-    console.log('after promise');
     $scope.post = Posts.findOne({_id:$stateParams['id']});
     
 
@@ -245,12 +252,17 @@ angular.module('update-me').controller('Posts', ['$scope', 'alldata', '$meteor',
       }
 
       if( $scope.userRole == 'superAdmin' ){
-          $scope.posts = alldata.content;
+          $scope.posts = Posts.find({}).fetch();
       }else{
-          $scope.posts = alldata.content;
+          $scope.posts = Posts.find({}).fetch();
       }
 
   })
+
+  $scope.removePost = function(post){
+    Posts.remove(post._id);
+    $scope.posts = Posts.find({}).fetch();
+  }
 
 
   $scope.goto = function(id){

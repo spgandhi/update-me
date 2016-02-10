@@ -1,6 +1,36 @@
 // Display
 angular.module('update-me').controller('Group', ['$scope', 'alldata' ,'$location', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $location, $meteor, toastr, $stateParams){
 
+  console.log('Group Initiated');
+  $scope.removeToast = function(){
+    toastr.success('Group Deleted', 'Success');
+  }
+
+
+  // Redirecting if user cannot manage groups
+  if( ! Roles.userIsInRole( Meteor.userId(), ['can-manage'], $stateParams['id'] ) ){
+    $location.path('/home');
+  }
+
+
+  $scope.org_id = $stateParams['id'];
+
+  var promise = alldata.check();
+
+  promise.then(function(){
+    $scope.groups = Groups.find({}).fetch();
+    console.log($scope.groups);
+  })
+
+  $scope.removeGroup = function(group){
+    Groups.remove(group._id);
+    $scope.groups = Groups.find({}).fetch();
+  }
+  
+}])
+
+angular.module('update-me').controller('Group-Create', ['$scope', 'alldata', 'toastr', '$stateParams', function($scope, alldata, toastr, $stateParams){
+  
   $scope.grpInit = function(){
     $scope.newGroup = {
       createdAt: new Date(),
@@ -16,7 +46,8 @@ angular.module('update-me').controller('Group', ['$scope', 'alldata' ,'$location
       },
       orgId: $stateParams['id']
     }
-  } 
+  }
+   
 
   $scope.tokenfield = function(){
     $('#group-admins').tokenfield({
@@ -27,9 +58,9 @@ angular.module('update-me').controller('Group', ['$scope', 'alldata' ,'$location
     });
   }
 
-  $scope.removeToast = function(){
-    toastr.success('Group Deleted', 'Success');
-  }
+  $scope.grpInit();
+  $scope.tokenfield();
+
 
   $scope.addGroup = function(){
     
@@ -53,26 +84,12 @@ angular.module('update-me').controller('Group', ['$scope', 'alldata' ,'$location
       $scope.grpInit();
       $('#group-admins').tokenfield('destroy');
       $scope.tokenfield();
+      alldata.subscribeGroup();
     });
 
   }
 
-  // Redirecting if user cannot manage groups
-  if( ! Roles.userIsInRole( Meteor.userId(), ['can-manage'], $stateParams['id'] ) ){
-    $location.path('/home');
-  }
 
-  $scope.tokenfield();
-  $scope.grpInit();
-
-  $scope.org_id = $stateParams['id'];
-
-  var promise = alldata.check();
-
-  promise.then(function(){
-    $scope.groups = Groups.find({}).fetch();
-  })
-  
 }])
 
 // Edit
@@ -91,12 +108,10 @@ angular.module('update-me').controller('Group-Edit', ['$scope', 'alldata', '$met
   promise.then(function(){
     
     $scope.grp = Groups.findOne({_id: $stateParams['grp_id']});
-    console.log($scope.grp);
     angular.forEach($scope.grp.roles['can-manage'], function(value, key){
 
         $('#group-admins').tokenfield()
           .on('tokenfield:removetoken', function(e){
-            console.log( $scope.grp.roles['can-manage'][0] );
             if(e.attrs.value == Meteor.user().emails[0].address){
               toastr.error('Sorry! You cannot remove yourself as an admin.', 'Error');
               event.preventDefault();

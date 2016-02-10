@@ -1,9 +1,9 @@
 angular.module('update-me').service('alldata', ['$q', function($q){
   
   var o = {
-    content: [],
-    organizations: [],
-    groups: [],
+    content: Posts.find({}),
+    organizations: Organizations.find({}),
+    groups: Groups.find({}),
     allPosts: false,
     allOrganizations: false,
     allGroups: false,
@@ -19,6 +19,43 @@ angular.module('update-me').service('alldata', ['$q', function($q){
   //   })
   // }
 
+  o.subscribeGroup = function(){
+    Meteor.subscribe('groups');
+  }
+
+  o.content.observe({
+    added: function(id, fields){
+    }
+  });
+
+  o.groups.observe({
+    added: function(id, fields){
+    }
+  })
+
+  o.add = function(type, content){
+    
+    var deferred = $q.defer();
+
+    if(type == 'post'){
+      Posts.insert(content);
+      deferred.resolve();
+    } else if(type == 'group'){
+      Groups.insert(content);
+      deferred.resolve();
+    }else if(type == 'organization'){
+      Organizations.insert(content);
+      deferred.resolve();
+    }
+
+    return deferred.promise;
+  }
+
+  o.removePost = function(post){    
+    Posts.remove({_id:post._id});
+    o.content.splice(o.content.indexOf(post), 1);
+  }
+
   o.check= function(){
 
     var deferred = $q.defer();
@@ -31,7 +68,7 @@ angular.module('update-me').service('alldata', ['$q', function($q){
     if(!o.allPosts && o.currentUser){
 
       Meteor.subscribe('posts', function(){
-        console.log('Posts Subscribed');
+        // console.log('Posts Subscribed');
         o.content = Posts.find({}).fetch();
         o.allPosts = true;
         
@@ -44,7 +81,7 @@ angular.module('update-me').service('alldata', ['$q', function($q){
 
     if(!o.allGroups && o.currentUser){
       Meteor.subscribe('groups', function(){
-        console.log('Groups Subscribed');
+        // console.log('Groups Subscribed');
         o.groups = Groups.find({}).fetch();
         o.allGroups = true;
 
@@ -55,7 +92,7 @@ angular.module('update-me').service('alldata', ['$q', function($q){
 
     if(!o.allOrganizations && o.currentUser){
       Meteor.subscribe('organizations', function(){
-        console.log('Orgs Subscribed');
+        // console.log('Orgs Subscribed');
         o.organizations = Organizations.find({}).fetch();
         o.allOrganizations = true;
 
@@ -78,11 +115,11 @@ angular.module('update-me').service('alldata', ['$q', function($q){
 
 angular.module('update-me').controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', function($scope, alldata, $meteor, toastr){
 
-   var promise = alldata.check();
+  var promise = alldata.check();
   
   promise.then(function(data){
     $scope.currentUser = alldata.currentUser;
-    $scope.posts = alldata.content;
+    $scope.posts = Posts.find({}).fetch();
   })
 
 }])

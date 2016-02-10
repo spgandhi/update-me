@@ -27,7 +27,7 @@
                         <td>{{grp.options.isPrivate}}</td>
                         <!-- <td><a type="button" class="btn btn-primary" href="/#/organization/{{org_id}}/group/{{grp._id}}">Manage</a></td> -->
                         <td><a type="button" class="btn btn-warning" href="/#/organization/{{org_id}}/group/{{grp._id}}/edit">Edit</a></td>
-                        <td><button type="button" class="btn btn-danger" ng-click="groups.remove(grp); removeToast();">Delete</button></td>
+                        <td><button type="button" class="btn btn-danger" ng-click="removeGroup(grp); removeToast();">Delete</button></td>
                     </tr>
                 </tbody>
             </table>
