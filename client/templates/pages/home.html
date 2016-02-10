@@ -1,11 +1,81 @@
 <div id="page-wrapper">
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Dashboard</h1>
+            <h1 class="page-header">Home</h1>
         </div>
+
         <!-- /.col-lg-12 -->
         <div class="col-lg-12">
-        	This is the main dashboard page where people will view all updates
+        	<div class="panel panel-default">
+        		<div class="panel-heading">
+        			<h3 class="panel-title">Latest</h3>
+        		</div>
+        		<div class="panel-body">
+		        	<ul class="list-group">
+		        		<li ng-repeat="post in posts | orderBy:'created_at'" ng-show="post.post_status=='publish'" class="list-group-item">
+
+		        			<!-- Modal -->
+		        			<div class="modal fade" id="{{post._id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+							  <div class="modal-dialog" role="document">
+							    <div class="modal-content">
+
+							      <div class="modal-header">
+							        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							        <h4 class="modal-title" id="myModalLabel">
+							        	<span>{{post.title}}</span>
+							        	<span class="pull-right">{{post.start_time | date:'EEE, MMM d'}}</span>
+							        </h4>
+							      </div>
+							      <div class="modal-body">
+							        {{post.content}}
+							      </div>
+							      <div class="modal-footer"  style="text-align:left">
+							      	<span ng-show="post.options.hasDeadline">Deadline : {{post.deadline | date: 'EEE, MMM d'}}</span>
+							      	<span class="start-time" ng-show="post.options.isEvent">
+							      		Event Time - {{post.start_time | date:'h:mm a'}} <span ng-show="post.end_time">-</span> {{post.end_time | date:'h:mm a'}} <span ng-show="post.venue">@</span> {{post.venue}}
+							      	</span>
+							      	<span class="pull-right">Posted On : {{post.created_at | date:'EEE, MMM d'}}</span>
+							      </div>
+							     <div title="Add to Calendar" class="addeventatc modal-footer" ng-show="post.options.isEvent">
+								    Add to Calendar
+								    <span class="start">{{post.start_time | date:'MM/dd/yyyy h:mm a'}}</span>
+								    <span class="end" ng-show="post.end_time">{{post.end_time | date: 'MM/dd/yyyy h:mm a'}}</span>
+								    <span class="timezone">Asia/Calcutta</span>
+								    <span class="title">{{post.title}}</span>
+								    <span class="description">{{post.content}}</span>
+								    <span class="location">{{post.venue}}</span>
+								    <span class="organizer">{{post.group.name}}</span>
+								    <!-- <span class="organizer_email"></span> -->
+								    <!-- <span class="facebook_event"></span> -->
+								    <span class="all_day_event">false</span>
+								    <span class="date_format">MM/DD/YYYY</span>
+								</div>
+							      
+							    </div>
+							  </div>
+							</div>
+		        			<div>
+
+		        				<span class="text-left">
+		        					{{post.title}}
+		        				</span>
+		        				<a data-toggle="modal" data-target="#{{post._id}}">view</a>
+		        				<span data-livestamp="{{post.created_at/1000}}"></span>
+		        				<span class="pull-right group-name">
+		        					{{post.group.name}}
+		        				</span>
+		        				<span ng-show="post.options.isEvent" class="pull-right group-name">
+		        					Event
+		        				</span>
+		        				<span ng-show="post.options.hasDeadline" class="pull-right group-name">
+		        					Deadline
+		        				</span>
+
+		        			</div>
+		        		</li>
+		        	</ul>
+		        </div>
+	        </div>
         </div>
     </div>
 </div>

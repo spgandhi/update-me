@@ -27,6 +27,10 @@
                 <label><input type="checkbox" ng-model="grp.options.isPrivate" value="{{grp.options.isPrivate}}"> Private</label>
             </div>
 
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="grp.options.manager_draft" value="false">Manager's Post as Draft</label>
+            </div>
+
 
             <button ng-click="editGroup()" type="submit" class="btn btn-default">Update</button>
             </form>

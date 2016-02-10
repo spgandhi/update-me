@@ -24,7 +24,11 @@
 
               <!-- Private Organization Checkbox -->
             <div class="checkbox">
-                <label><input type="checkbox" ng-model="newPost.options.isEvent" value="false"> Is This An Event?</label>
+                <label><input type="checkbox" ng-model="newPost.options.isEvent" value="false" ng-change="checkboxChange('event')"> Is This An Event?</label>
+            </div>
+
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="newPost.options.hasDeadline" value="false" ng-change="checkboxChange('deadline')">Is there a deadline?</label>
             </div>
 
             <div ng-show="newPost.options.isEvent">
@@ -45,9 +49,20 @@
                 </div>
             </div>
 
+            <div ng-show="newPost.options.hasDeadline">
+                <div class="row">
+                    <div class="form-group col-xs-12 col-lg-6">
+                        <label>Deadline</label>
+                        <input ng-model="newPost.deadline" id="deadline" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+
+
             <div class="form-group">
                 <label for="sel1">Select list:</label>
-                    <select class="form-control" ng-model="newPost.group" ng-options="group._id as group.name for group in groups">
+                    <select class="form-control" ng-model="newPost.group" ng-options="group as group.name for group in groups track by group._id">
                             <option></option>
                     </select>
             </div>

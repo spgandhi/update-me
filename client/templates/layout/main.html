@@ -10,16 +10,17 @@
         </div>
         <!-- /.navbar-header -->
 
-        <ul class="nav navbar-top-links navbar-right">
+        <ul class="nav navbar-top-links navbar-right" ng-show="ifUser()">
             <!-- <li ng-show="{{currentUser}}" ng-click="logout()">Logout</li> -->
-            <login-buttons></login-buttons>
+            <span>Welcome, {{currentUser}}</span>
+            <button ng-click="logout();">Logout</button>
         </ul>
         <!-- /.navbar-top-links -->
 
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
-                <ul class="nav" id="side-menu">
-                    <li class="sidebar-search">
+                <ul class="nav" id="side-menu" ng-show="currentUser">
+                    <!-- <li class="sidebar-search">
                         <div class="input-group custom-search-form">
                             <input type="text" class="form-control" placeholder="Search...">
                             <span class="input-group-btn">
@@ -28,17 +29,16 @@
                             </button>
                         </span>
                         </div>
-                        <!-- /input-group -->
-                    </li>
-                    <li >
-                        <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-                    </li>
-                    <li >
-                        <a href="" ui-sref="organization"><i class="fa fa-archive fa-fw"></i> Organization</a>
-                    </li>
-                    <li >
-                        <a href="" ui-sref="posts"><i class="fa fa-archive fa-fw"></i> Posts</a>
-                    </li>
+                    
+                    </li> -->
+                    <!-- <li ng-repeat="grp in groups">
+                        <a href="/"><i class="fa fa-dashboard fa-fw"></i>{{grp.name}}</a>
+                    </li> -->
+                    <li><a href="/#/home">Home</a></li>
+                    <li><a href="/#/posts">Posts</a></li>
+                    <li><a href="/#/post/create">Add Post</a></li>
+                    <li><a href="/#/organization/rPhfkAqMeQ6SEw7rn/groups">Groups</a></li>
+                    <li><a href="/#/organization/rPhfkAqMeQ6SEw7rn/group/create">Add Group</a></li>
                 </ul>
             </div>
             <!-- /.sidebar-collapse -->

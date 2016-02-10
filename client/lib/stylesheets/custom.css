@@ -1,0 +1,16 @@
+span.group-name {
+    border: 1px solid;
+    padding: 2px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin: 0 2px;
+}
+
+.loading{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: black;
+    z-index: 10000;
+    opacity: 0.7;
+}
