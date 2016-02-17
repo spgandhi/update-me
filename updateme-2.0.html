@@ -1,179 +1,115 @@
 <head>
+ <meta name="description" content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" /> 
   <title>updateme-2.0</title>
   <script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js" async defer></script>
 </head>
 
 <body>
-
 <div ng-app="update-me" angular-multi-select-mouse-trap angular-multi-select-key-trap ng-controller="Main">
-<div class="loading" ng-show="appLoading"></div>
-<div id="wrapper">
-    <ng-include src="'client/templates/layout/main.html'"></ng-include>
     
-    <div ui-view class="col-lg-10">
-    </div>
-    
-    <div class="col-lg-2" ng-show="ifUser()">
-        <div class="row">
-    	   <h3>Now Events</h3>
-            <!-- <div ng-hide="event">
-                No events right now.
-            </div> -->
-    	    <ul class="list-group">       
-    		  <li class="list-group-item" ng-repeat="post in posts" ng-show="isNowEvent(post)">
-    		  	<a data-toggle="modal" data-target="#now_events_{{post._id}}">{{post.title}}</a> <span ng-show="post.venue">@</span> {{post.venue}} from {{post. start_time | date:'h:mm a'}} <span ng-show="post.end_time"> to </span> {{post.end_time | date:'h:mm a'}}
+    <div ui-view="login"></div>
+    <div ui-view="register"></div>
+    <div ui-view="others"></div>
+    <div ng-if="ifUser()" id="wrapper">
+       <section class="vbox">
+
+        <nav class="bg-white header header-md navbar navbar-fixed-top-xs box-shadow navbar navbar-default navbar-fixed-top" >
+            <div class="navbar-header aside-md dk">
+              <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen" data-target="#nav">
+                <i class="fa fa-bars"></i>
+              </a>
+              
+              <a href="/#/" class="navbar-brand">
+                <span class="hidden-nav-xs">Update Me!</span>
+              </a>
+
+              <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target=".user">
+                <i class="fa fa-cog"></i>
+              </a>
+
+            </div>
+          
+            <!-- <form class="navbar-form navbar-left input-s-lg m-t m-l-n-xs hidden-xs" role="search">
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-btn">
+                    <button type="submit" class="btn btn-sm bg-white b-white btn-icon"><i class="fa fa-search"></i></button>
+                  </span>
+                  <input type="text" class="form-control input-sm no-border" placeholder="Search apps, projects...">            
+                </div>
+              </div>
+            </form> -->
+            <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user user">
+                  
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                      <span class="thumb-sm avatar pull-left">
+                       <!--  <img src="images/a0.png" alt="..."> -->
+                      </span>
+                      {{user}} <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight">            
+                      <li>
+                        <a href="/#/profile">Profile</a>
+                      </li>
+                      <li>
+                        <a ng-click="logout();">Logout</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>  
+
+        </nav>
+
+        <section>
+          <section class="hbox stretch">
+            <!-- .aside -->
+            <aside class="bg-black aside-md hidden-print" id="nav" style="position: fixed">          
+              <section class="vbox">
+                <section class="w-f scrollable">
+                  <div class="slim-scroll" data-height="auto" data-disable-fade-out="true" data-distance="0" data-size="10px" data-railOpacity="0.2">
+                    <nav class="nav-primary hidden-xs">
+                      <ul class="nav nav-main" data-ride="collapse">
+                        <li><a href="/#/">Home</a></li>
+                        <li ng-class="{'active': active1==true}" ng-click="active1 =! active1" ng-init="active1=false">
+                          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Posts <span class="caret pull-right"></span></a>
+                          <ul class="nav dk">
+                            <li><a href="/#/posts">All Posts</a></li>
+                            <li><a href="/#/post/create">Add Post</a></li>
+                          </ul>
+                        </li>
+
+                        <li ng-show="org_id" ng-class="{'active': active2==true}" ng-click="active2 =! active2" ng-init="active2=false">
+                          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Groups <span class="caret pull-right"></span></a>
+                          <ul class="nav dk">
+                            <li><a href="/#/groups">All Groups</a></li>
+                            <li><a href="/#/group/create">Add Groups</a></li>
+                          </ul>
+                        </li>
+
+                        <li><a href="/#/groups/favourite">Favourites</a></li>
+
+                      
+                    </nav>
+                    <!-- / nav -->
+                  </div>
+                </section>
                 
-                <!-- Modal -->
-                            <div class="modal fade" id="now_events_{{post._id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                              <div class="modal-dialog" role="document">
-                                <div class="modal-content">
+             
+              </section>
+            </aside>
+            <!-- /.aside -->
+            <section id="content" class="col-lg-10 col-sm-12">
+              <div ui-view class="col-lg-12 main-view">
+              </div>
+              
+            </section>
+          </section>
+        </section>
+      </section>
 
-                                  <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">
-                                        <span>{{post.title}}</span>
-                                        <span class="pull-right">{{post.start_time | date:'EEE, MMM d'}}</span>
-                                    </h4>
-                                  </div>
-                                  <div class="modal-body">
-                                    {{post.content}}
-                                  </div>
-                                  <div class="modal-footer"  style="text-align:left">
-                                    <span ng-show="post.options.hasDeadline">Deadline : {{post.deadline | date: 'EEE, MMM d'}}</span>
-                                    <span class="start-time" ng-show="post.options.isEvent">
-                                        Event Time - {{post.start_time | date:'h:mm a'}} <span ng-show="post.end_time">-</span> {{post.end_time | date:'h:mm a'}} <span ng-show="post.venue">@</span> {{post.venue}}
-                                    </span>
-                                    <span class="pull-right">Posted On : {{post.created_at | date:'EEE, MMM d'}}</span>
-                                  </div>
-                                 <div title="Add to Calendar" class="addeventatc modal-footer" ng-show="post.options.isEvent">
-                                    Add to Calendar
-                                    <span class="start">{{post.start_time | date:'MM/dd/yyyy h:mm a'}}</span>
-                                    <span class="end" ng-show="post.end_time">{{post.end_time | date: 'MM/dd/yyyy h:mm a'}}</span>
-                                    <span class="timezone">Asia/Calcutta</span>
-                                    <span class="title">{{post.title}}</span>
-                                    <span class="description">{{post.content}}</span>
-                                    <span class="location">{{post.venue}}</span>
-                                    <span class="organizer">{{post.group.name}}</span>
-                                    <!-- <span class="organizer_email"></span> -->
-                                    <!-- <span class="facebook_event"></span> -->
-                                    <span class="all_day_event">false</span>
-                                    <span class="date_format">MM/DD/YYYY</span>
-                                </div>
-                                  
-                                </div>
-                              </div>
-                            </div>
-
-    		  </li>
-    	   </ul>
-        </div>
-        <div class="row">
-            <h3>Today Events</h3>
-            <!-- div ng-hide="today_events">
-                No events today.
-            </div> -->
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="post in posts" ng-show="isTodayEvent(post)">
-                    <a data-toggle="modal" data-target="#today_events{{post._id}}">{{post.title}}</a> <span ng-show="event.venue">@</span> {{post.venue}} from {{post. start_time | date:'h:mm a'}} <span ng-show="post.end_time"> to </span> {{post.end_time | date:'h:mm a'}}
-
-                    <!-- Modal -->
-                            <div class="modal fade" id="today_events{{post._id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                              <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-
-                                  <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">
-                                        <span>{{post.title}}</span>
-                                        <span class="pull-right">{{post.start_time | date:'EEE, MMM d'}}</span>
-                                    </h4>
-                                  </div>
-                                  <div class="modal-body">
-                                    {{post.content}}
-                                  </div>
-                                  <div class="modal-footer"  style="text-align:left">
-                                    <span ng-show="post.options.hasDeadline">Deadline : {{post.deadline | date: 'EEE, MMM d'}}</span>
-                                    <span class="start-time" ng-show="post.options.isEvent">
-                                        Event Time - {{post.start_time | date:'h:mm a'}} <span ng-show="post.end_time">-</span> {{post.end_time | date:'h:mm a'}} <span ng-show="post.venue">@</span> {{post.venue}}
-                                    </span>
-                                    <span class="pull-right">Posted On : {{post.created_at | date:'EEE, MMM d'}}</span>
-                                  </div>
-                                 <div title="Add to Calendar" class="addeventatc modal-footer" ng-show="post.options.isEvent">
-                                    Add to Calendar
-                                    <span class="start">{{post.start_time | date:'MM/dd/yyyy h:mm a'}}</span>
-                                    <span class="end" ng-show="post.end_time">{{post.end_time | date: 'MM/dd/yyyy h:mm a'}}</span>
-                                    <span class="timezone">Asia/Calcutta</span>
-                                    <span class="title">{{post.title}}</span>
-                                    <span class="description">{{post.content}}</span>
-                                    <span class="location">{{post.venue}}</span>
-                                    <span class="organizer">{{post.group.name}}</span>
-                                    <!-- <span class="organizer_email"></span> -->
-                                    <!-- <span class="facebook_event"></span> -->
-                                    <span class="all_day_event">false</span>
-                                    <span class="date_format">MM/DD/YYYY</span>
-                                </div>
-                                  
-                                </div>
-                              </div>
-                            </div>
-
-                </li>
-            </ul>
-        </div>
-        <div class="row">
-            <h3>Tomorrow Events</h3>
-            <!-- <div ng-hide="tomorrow_events">
-                No events tomorrow.
-            </div> -->
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="post in posts" ng-show="isTomorrowEvent(post)">
-                    <a data-toggle="modal" data-target="#tom_events{{post._id}}">{{post.title}}</a> <span ng-show="post.venue">@</span> {{post.venue}} from {{post. start_time | date:'h:mm a'}} <span ng-show="post.end_time"> to </span> {{post.end_time | date:'h:mm a'}}
-
-                    <!-- Modal -->
-                            <div class="modal fade" id="tom_events{{post._id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                              <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-
-                                  <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">
-                                        <span>{{post.title}}</span>
-                                        <span class="pull-right">{{post.start_time | date:'EEE, MMM d'}}</span>
-                                    </h4>
-                                  </div>
-                                  <div class="modal-body">
-                                    {{post.content}}
-                                  </div>
-                                  <div class="modal-footer"  style="text-align:left">
-                                    <span ng-show="post.options.hasDeadline">Deadline : {{post.deadline | date: 'EEE, MMM d'}}</span>
-                                    <span class="start-time" ng-show="post.options.isEvent">
-                                        Event Time - {{post.start_time | date:'h:mm a'}} <span ng-show="post.end_time">-</span> {{post.end_time | date:'h:mm a'}} <span ng-show="post.venue">@</span> {{post.venue}}
-                                    </span>
-                                    <span class="pull-right">Posted On : {{post.created_at | date:'EEE, MMM d'}}</span>
-                                  </div>
-                                 <div title="Add to Calendar" class="addeventatc modal-footer" ng-show="post.options.isEvent">
-                                    Add to Calendar
-                                    <span class="start">{{post.start_time | date:'MM/dd/yyyy h:mm a'}}</span>
-                                    <span class="end" ng-show="post.end_time">{{post.end_time | date: 'MM/dd/yyyy h:mm a'}}</span>
-                                    <span class="timezone">Asia/Calcutta</span>
-                                    <span class="title">{{post.title}}</span>
-                                    <span class="description">{{post.content}}</span>
-                                    <span class="location">{{post.venue}}</span>
-                                    <span class="organizer">{{post.group.name}}</span>
-                                    <!-- <span class="organizer_email"></span> -->
-                                    <!-- <span class="facebook_event"></span> -->
-                                    <span class="all_day_event">false</span>
-                                    <span class="date_format">MM/DD/YYYY</span>
-                                </div>
-                                  
-                                </div>
-                              </div>
-                            </div>
-
-                </li>
-            </ul>
-        </div>
     </div>
- </div>
+    
 </div>
 </body>

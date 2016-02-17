@@ -1,81 +1,207 @@
-<div id="page-wrapper">
-    <div class="row">
-        <div class="col-lg-12">
-            <h1 class="page-header">Home</h1>
-        </div>
+<div class="col-lg-4">
+	<section class="panel portlet-item panel-default">
+		<header class="panel-heading">
+		  
+		<input type="checkbox" ng-model="filter.options.isEvent" ng-change="eventFilter()"> Events
+		<input type="checkbox" ng-model="filter.options.hasDeadline" ng-change="deadlineFilter()"> Deadline
+       	<input type="text" ng-model="keywordfilter" class="pull-right" placeholder="Search">
+      	  
+		</header>
 
-        <!-- /.col-lg-12 -->
-        <div class="col-lg-12">
-        	<div class="panel panel-default">
-        		<div class="panel-heading">
-        			<h3 class="panel-title">Latest</h3>
-        		</div>
-        		<div class="panel-body">
-		        	<ul class="list-group">
-		        		<li ng-repeat="post in posts | orderBy:'created_at'" ng-show="post.post_status=='publish'" class="list-group-item">
+		<!-- All Posts -->
+		<ul class="list-group alt">
+			<li class="list-group-item" ng-repeat="post in posts | orderBy:'-created_at' | filter:filter | filter:keywordfilter">
+		    	<div class="media">
+		      		<div class="pull-right  m-t-sm">
+		        		<i class="fa fa-circle text-success" ng-show="post.options.isEvent"></i>
+		        		<i class="fa fa-circle text-danger" ng-show="post.options.hasDeadline"></i>
+		      		</div>
+		      		<div class="media-body">
+		        		<div><a data-toggle="modal" data-target="#main_{{post._id}}" ng-click="postOpen(post._id, 'main')">{{post.title}}</a></div>
+		        		<small class="text-muted"><span data-livestamp="{{post.created_at/1000}}"></span></small>
+		      		</div>
+		    	</div>
 
-		        			<!-- Modal -->
-		        			<div class="modal fade" id="{{post._id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-							  <div class="modal-dialog" role="document">
-							    <div class="modal-content">
+		    	<ng-include src="'client/templates/partials/modal.html'" ng-init="type='main'"></ng-include>
 
-							      <div class="modal-header">
-							        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							        <h4 class="modal-title" id="myModalLabel">
-							        	<span>{{post.title}}</span>
-							        	<span class="pull-right">{{post.start_time | date:'EEE, MMM d'}}</span>
-							        </h4>
-							      </div>
-							      <div class="modal-body">
-							        {{post.content}}
-							      </div>
-							      <div class="modal-footer"  style="text-align:left">
-							      	<span ng-show="post.options.hasDeadline">Deadline : {{post.deadline | date: 'EEE, MMM d'}}</span>
-							      	<span class="start-time" ng-show="post.options.isEvent">
-							      		Event Time - {{post.start_time | date:'h:mm a'}} <span ng-show="post.end_time">-</span> {{post.end_time | date:'h:mm a'}} <span ng-show="post.venue">@</span> {{post.venue}}
-							      	</span>
-							      	<span class="pull-right">Posted On : {{post.created_at | date:'EEE, MMM d'}}</span>
-							      </div>
-							     <div title="Add to Calendar" class="addeventatc modal-footer" ng-show="post.options.isEvent">
-								    Add to Calendar
-								    <span class="start">{{post.start_time | date:'MM/dd/yyyy h:mm a'}}</span>
-								    <span class="end" ng-show="post.end_time">{{post.end_time | date: 'MM/dd/yyyy h:mm a'}}</span>
-								    <span class="timezone">Asia/Calcutta</span>
-								    <span class="title">{{post.title}}</span>
-								    <span class="description">{{post.content}}</span>
-								    <span class="location">{{post.venue}}</span>
-								    <span class="organizer">{{post.group.name}}</span>
-								    <!-- <span class="organizer_email"></span> -->
-								    <!-- <span class="facebook_event"></span> -->
-								    <span class="all_day_event">false</span>
-								    <span class="date_format">MM/DD/YYYY</span>
-								</div>
-							      
-							    </div>
-							  </div>
-							</div>
-		        			<div>
+		  	</li>
+		</ul>
+	</section>
+</div>
 
-		        				<span class="text-left">
-		        					{{post.title}}
-		        				</span>
-		        				<a data-toggle="modal" data-target="#{{post._id}}">view</a>
-		        				<span data-livestamp="{{post.created_at/1000}}"></span>
-		        				<span class="pull-right group-name">
-		        					{{post.group.name}}
-		        				</span>
-		        				<span ng-show="post.options.isEvent" class="pull-right group-name">
-		        					Event
-		        				</span>
-		        				<span ng-show="post.options.hasDeadline" class="pull-right group-name">
-		        					Deadline
-		        				</span>
+<div class="col-lg-4">
 
-		        			</div>
-		        		</li>
-		        	</ul>
-		        </div>
-	        </div>
-        </div>
-    </div>
+	<div ng-show="yesGroup==false" class="text-center">
+		You do not have any groups added to your favourites.<br><br>
+		<a class="btn btn-primary" href="/#/groups/favourite">Add Favourites</a>
+	</div>
+
+	<div ng-repeat="fav in favourites" ng-init="groupPost = getGroupPost(fav)" >
+		<section ng-if="groupPost != false" class="panel portlet-item panel-default">
+			<header class="panel-heading">
+				<h3 class="panel-title">{{getGroupName(fav).name}}</h3>
+			</header>
+
+			<div ng-show="!groupPost">
+				There are no posts to show right now.
+			</div>
+
+			<ul class="list-group alt">
+			  	<li ng-init="filter.group._id = fav" ng-repeat="post in groupPost | orderBy:'-created_at'" class="list-group-item">
+				    <div class="media">
+				      	<div class="pull-right m-t-sm">
+				        	<i class="fa fa-circle text-success" ng-show="post.options.isEvent"></i>
+				        	<i class="fa fa-circle text-danger" ng-show="post.options.hasDeadline"></i>
+				      	</div>
+				      	
+				      	<div class="media-body">
+				        	<div>
+				        		<div ng-if="post.options.isEvent || post.options.hasDeadline" class="pull-right media-xs text-center text-muted"> 
+				        			<span ng-if="post.options.isEvent">
+			              				<strong class="h4">{{post.start_time | date:'h:mm'}}</strong><br> 
+			              				<small class="label bg-light">{{post.start_time | date:'a'}}</small><br>
+			              				<small>{{post.start_time | date:'EEE, d MMM'}}</small>
+			              			</span> 
+
+			              			<span ng-if="post.options.hasDeadline">
+				      					
+			              				<strong class="h4">{{post.deadline | date:'h:mm'}}</strong><br> 
+			              				<small class="label bg-light">{{post.deadline | date:'a'}}</small><br>
+			              				<small>{{post.deadline | date:'EEE, d MMM'}}</small>
+			              			</span> 
+
+			            		</div>
+				        		<a data-toggle="modal" data-target="#{{fav}}_{{post._id}}" class="text-left" ng-click="postOpen(post._id, 'favourites')">{{post.title}}</a>
+				        	</div>
+				      	</div>
+			    	</div>
+
+				    <ng-include src="'client/templates/partials/modal.html'" ng-init="type=fav"></ng-include>
+			 	</li>
+			</ul>
+		</section>
+	</div>
+</div>
+
+<div class="col-lg-4" ng-show="ifUser()">
+          
+    <section class="panel portlet-item panel-default">
+      
+	    <header class="panel-heading">
+		    <h3 class="panel-title ng-binding">Today Events</h3>
+		</header>
+
+		<div ng-show="!todayEvents">No events today</div>
+	    <ul class="list-group alt">
+	        <li class="list-group-item" ng-repeat="post in todayEvents | orderBy:'-start_time'">
+	          	<div class="media">
+	            	<div class="pull-right media-xs text-center text-muted"> 
+	              		<span ng-if="post.options.isEvent">
+              				<strong class="h4">{{post.start_time | date:'h:mm'}}</strong><br> 
+              				<small class="label bg-light">{{post.start_time | date:'a'}}</small><br>
+              				<!-- <small>{{post.start_time | date:'EEE'}}</small> -->
+              			</span> 
+
+              			<span ng-if="post.options.hasDeadline">
+              				<strong class="h4">{{post.deadline | date:'h:mm'}}</strong><br> 
+              				<small class="label bg-light">{{post.deadline | date:'a'}}</small><br>
+              				<small>{{post.deadline | date:'EEE, d MMM'}}</small>
+              			</span>
+
+	            	</div>
+
+	            	<div class="media-body">
+	              		<div>
+	                		<a data-toggle="modal" data-target="#today_events_{{post._id}}" ng-click="postOpen(post._id, 'events')">{{post.title}}</a> <span ng-show="post.venue">@</span> {{post.venue}}
+	                		<span class="pull-right text-success group-name" ng-if="isNowEvent(post)">Live</span>
+	              		</div>
+	            	</div>
+	          	</div>
+
+	          	<ng-include src="'client/templates/partials/modal.html'" ng-init="type='today_events'"></ng-include>
+	          
+	          	
+	        </li>
+	    </ul>
+	</section>
+
+	<section class="panel portlet-item panel-default">
+      
+      	<header class="panel-heading">
+        	<h3 class="panel-title ng-binding">Upcoming Events</h3>
+      	</header>
+
+      	<div ng-if="!tomorrowEvent">No events in future.</div>
+      	<ul class="list-group alt">
+
+        	<li class="list-group-item" ng-repeat="post in upcomingEvents | orderBy:'-created_at'">
+          		<div class="media">
+            		<div class="pull-right media-xs text-center text-muted"> 
+
+            			<span ng-if="post.options.isEvent">
+              				<strong class="h4">{{post.start_time | date:'h:mm'}}</strong><br> 
+              				<small class="label bg-light">{{post.start_time | date:'a'}}</small><br>
+              				<small>{{post.start_time | date:'EEE, d MMM'}}</small>
+              			</span> 
+
+              			<span ng-if="post.options.hasDeadline">
+              				<strong class="h4">{{post.deadline | date:'h:mm'}}</strong><br> 
+              				<small class="label bg-light">{{post.deadline | date:'a'}}</small><br>
+              				<small>{{post.deadline | date:'EEE, d MMM'}}</small>
+              			</span>
+
+            		</div>
+            	<div class="media-body">
+              
+	              	<div>
+	                	<a data-toggle="modal" data-target="#tom_events_{{post._id}}" ng-click="postOpen(post._id, 'events')">{{post.title}}</a> <span ng-show="post.venue">@</span> {{post.venue}}
+	              	</div>
+            	</div>
+          	</div>
+          
+          	<!-- modal -->
+          	<ng-include src="'client/templates/partials/modal.html'" ng-init="type='tom_events'"></ng-include>
+        </li>
+      </ul>
+    </section>
+
+    <section class="panel portlet-item panel-default">
+      
+	    <header class="panel-heading">
+		    <h3 class="panel-title ng-binding">Deadlines</h3>
+		</header>
+
+		
+	    <ul class="list-group alt">
+	        <li class="list-group-item" ng-repeat="post in deadlinePost | orderBy:'-deadline'">
+	          	<div class="media">
+	            	<div class="pull-right media-xs text-center text-muted"> 
+	              		<span ng-if="post.options.isEvent">
+              				<strong class="h4">{{post.start_time | date:'h:mm'}}</strong><br> 
+              				<small class="label bg-light">{{post.start_time | date:'a'}}</small><br>
+              			</span> 
+
+              			<span ng-if="post.options.hasDeadline">
+              				<strong class="h4">{{post.deadline | date:'h:mm'}}</strong><br> 
+              				<small class="label bg-light">{{post.deadline | date:'a'}}</small><br>
+              				<small>{{post.deadline | date:'EEE, d MMM'}}</small>
+              			</span>
+              			
+	            	</div>
+
+	            	<div class="media-body">
+	              		<div>
+	                		<a data-toggle="modal" data-target="#deadlinePost_{{post._id}}" ng-click="postOpen(post._id, 'deadline')">{{post.title}}</a> <span ng-show="post.venue">@</span> {{post.venue}}
+	                		<span class="pull-right text-success group-name" ng-if="isNowEvent(post)">Live</span>
+	              		</div>
+	            	</div>
+	          	</div>
+
+	          	<ng-include src="'client/templates/partials/modal.html'" ng-init="type='deadlinePost'"></ng-include>
+	          
+	          	
+	        </li>
+	    </ul>
+	</section>
+
 </div>

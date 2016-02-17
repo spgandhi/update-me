@@ -1,16 +1,18 @@
-// Display
-angular.module('update-me').controller('Group', ['$scope', 'alldata' ,'$location', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $location, $meteor, toastr, $stateParams){
+var app = angular.module('update-me');
 
-  console.log('Group Initiated');
+// Display
+app.controller('Group', ['$scope', 'alldata' ,'$location', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $location, $meteor, toastr, $stateParams){
+
+  
   $scope.removeToast = function(){
     toastr.success('Group Deleted', 'Success');
   }
 
 
   // Redirecting if user cannot manage groups
-  if( ! Roles.userIsInRole( Meteor.userId(), ['can-manage'], $stateParams['id'] ) ){
-    $location.path('/home');
-  }
+  // if( ! Roles.userIsInRole( Meteor.userId(), ['can-manage'], $stateParams['id'] ) ){
+  //   $location.path('/home');
+  // }
 
 
   $scope.org_id = $stateParams['id'];
@@ -18,19 +20,27 @@ angular.module('update-me').controller('Group', ['$scope', 'alldata' ,'$location
   var promise = alldata.check();
 
   promise.then(function(){
-    $scope.groups = Groups.find({}).fetch();
+    console.log(Roles.getGroupsForUser( Meteor.userId() ) );
+    $scope.groups = Groups.find({orgId: {$in:Roles.getGroupsForUser( Meteor.userId() )} }).fetch();
     console.log($scope.groups);
   })
 
   $scope.removeGroup = function(group){
     Groups.remove(group._id);
-    $scope.groups = Groups.find({}).fetch();
+    $scope.groups = Groups.find({orgId: {$in:Roles.getGroupsForUser( Meteor.userId() )} }).fetch();
   }
   
 }])
 
-angular.module('update-me').controller('Group-Create', ['$scope', 'alldata', 'toastr', '$stateParams', function($scope, alldata, toastr, $stateParams){
+app.controller('Group-Create', ['$scope', 'alldata', 'toastr', '$stateParams', function($scope, alldata, toastr, $stateParams){
   
+  var promise = alldata.check();
+
+  promise.then(function(){
+    $scope.organizations = Organizations.find({_id: {$in: Roles.getGroupsForUser( Meteor.userId() ) }}).fetch();  
+  })
+  
+
   $scope.grpInit = function(){
     $scope.newGroup = {
       createdAt: new Date(),
@@ -38,13 +48,13 @@ angular.module('update-me').controller('Group-Create', ['$scope', 'alldata', 'to
       updatedAt: new Date(),
       options: {
         isPrivate: false,
-        posts: 0
+        posts: 0,
+        manager_draft: false
       },
       roles: {
         'can-manage': [Meteor.user().emails[0].address],
         'is-subscribed': [Meteor.user().emails[0].address]
-      },
-      orgId: $stateParams['id']
+      }
     }
   }
    
@@ -64,11 +74,20 @@ angular.module('update-me').controller('Group-Create', ['$scope', 'alldata', 'to
 
   $scope.addGroup = function(){
     
-    if(!$scope.newGroup.name)
+    err = false;
+
+    if(!$scope.newGroup.name){
       toastr.error('Please enter a name', 'Error');
+      err = true;
+    }
     
-    if($scope.newGroup.orgId == '')
-      toastr.error('There was error. Please report the problem.');
+    if(!$scope.newGroup.orgId){
+      toastr.error('Please select a organization.');
+      err = true;
+    }
+
+    if(err)
+      return;
 
     var admins = $('#group-admins').tokenfield('getTokensList').split(' ');
     
@@ -93,7 +112,7 @@ angular.module('update-me').controller('Group-Create', ['$scope', 'alldata', 'to
 }])
 
 // Edit
-angular.module('update-me').controller('Group-Edit', ['$scope', 'alldata', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $meteor, toastr, $stateParams){
+app.controller('Group-Edit', ['$scope', 'alldata', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $meteor, toastr, $stateParams){
   
   $scope.grp_admin = [];
 
@@ -135,6 +154,11 @@ angular.module('update-me').controller('Group-Edit', ['$scope', 'alldata', '$met
 
   })  
 
+  $scope.isSuperAdmin = function(org_id){
+    console.log(org_id);
+    return alldata.isSuperAdmin({org_id:org_id});
+  }
+
   $scope.editGroup = function(){
     $scope.grp.roles['can-manage'] = $scope.grp_admin;
 
@@ -151,7 +175,7 @@ angular.module('update-me').controller('Group-Edit', ['$scope', 'alldata', '$met
 }]);
 
 // Single Display
-angular.module('update-me').controller('Group-Single', ['$scope', 'alldata', '$meteor', '$stateParams', 'toastr', function($scope, alldata, $meteor, $stateParams, toastr){
+app.controller('Group-Single', ['$scope', 'alldata', '$meteor', '$stateParams', 'toastr', function($scope, alldata, $meteor, $stateParams, toastr){
   $scope.org_id = $stateParams['id'];
   
   var promise = alldata.check();
@@ -160,4 +184,48 @@ angular.module('update-me').controller('Group-Single', ['$scope', 'alldata', '$m
     $scope.grp = Groups.findOne({_id: $stateParams['grp_id']});
   })
   
+}])
+
+
+app.controller('Groups-Favourite', ['$scope', 'alldata', function($scope, alldata){
+  // var promise = alldata.check();
+
+  $scope.checkIfFavourite = function(grp_id){
+    if(Meteor.user().profile){
+      if( Meteor.user().profile.favourites){
+          if( Meteor.user().profile.favourites.indexOf(grp_id) != -1)
+            return 'active';
+      }else{
+        Meteor.users.update( {_id:Meteor.userId()}, {$set: {'profile.favourites': []}});
+      }
+    }
+    return 'false';
+  }
+
+  $scope.shreyans = function(value, button){
+    if(Meteor.user().profile.favourites)
+    
+    if( !$('#'+value._id).hasClass('active') )
+      Meteor.users.update( Meteor.userId(), { $push: { 'profile.favourites' : value._id } } );
+    else
+      Meteor.users.update( Meteor.userId(), { $pull: { 'profile.favourites' : value._id } } );
+    
+  }
+
+  // promise.then(function(){
+    Meteor.subscribe('all-groups', function(){
+      $scope.groups = Groups.find({}).fetch();  
+    })
+    
+  // })
+}])
+
+app.controller('Group-Subscribe', ['$scope', 'alldata', function($scope, alldata){
+  var promise = alldata.check();
+
+  promise.then(function(){
+    Meteor.subscribe('all-groups', function(){
+      
+    })
+  })
 }])

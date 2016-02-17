@@ -1,0 +1,12 @@
+<span title="Add to Calendar" class="addeventatc" ng-if="post.options.isEvent">
+						    			<!-- <i class="fa fa-calendar"></i> -->
+								    	<span class="start">{{post.start_time | date:'MM/dd/yyyy h:mm a'}}</span>
+								    	<span class="end" ng-if="post.end_time">{{post.end_time | date: 'MM/dd/yyyy h:mm a'}}</span>
+								    	<span class="timezone">Asia/Calcutta</span>
+									    <span class="title">{{post.title}}</span>
+									    <span class="description">{{post.content}}</span>
+									    <span class="location">{{post.venue}}</span>
+									    <span class="organizer">{{post.group.name}}</span>
+									    <span class="all_day_event">false</span>
+									    <span class="date_format">MM/DD/YYYY</span>
+									</span>

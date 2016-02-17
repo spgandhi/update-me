@@ -1,4 +1,6 @@
-angular.module('update-me').controller('Subscribe', ['$scope', 'toastr', '$stateParams', '$meteor', function($scope, toastr, $stateParams, $meteor){
+var app = angular.module('update-me');
+
+app.controller('Subscribe', ['$scope', 'toastr', '$stateParams', '$meteor', function($scope, toastr, $stateParams, $meteor){
   Meteor.subscribe('all-groups', function(){
     $scope.groups = Groups.find().fetch();
   })

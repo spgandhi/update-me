@@ -1,0 +1,60 @@
+<!-- Modal -->
+				<div class="modal fade" id="{{type}}_{{post._id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			  		<div class="modal-dialog" role="document">
+				    	
+				    	<div class="modal-content">
+				      		<div class="modal-header">
+				        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				        		<h4 class="modal-title" id="myModalLabel">
+				        			<span>{{post.title}}</span>
+				        			<!-- <ng-include src="'/client/templates/partials/add_to_cal.html'"></ng-include> -->
+				        			<span class="pull-right">
+				        				<span ng-if="post.options.isEvent" class="group-name">Event</span>
+				        				<span ng-if="post.options.hasDeadline" class="group-name">Deadline</span>
+				        				<span class="group-name">{{post.group.name}}</span>
+				        			</span>
+				        		</h4>
+				      		</div>
+				      
+					      	<div class="modal-body" ng-bind-html="post.content | sanitize">
+					        	
+					      	</div>
+				      
+					      	<div class="modal-footer"  style="text-align:left">
+					      		
+					      		
+
+					      		<div class="pull-left">
+					      			<span class="pull-right" ng-if="post.options.isEvent">{{post.start_time | date:'EEE, d MMM'}}</span>
+					      		</div>
+
+					      		<div class="pull-left" ng-if="post.options.hasDeadline">
+					      			<span class="pull-right">{{post.deadline | date:'EEE, d MMM'}}</span>
+					      		</div>
+
+					      		<div class="pull-right text-center" ng-if="post.options.hasDeadline">
+					      			<span class="pull-left">
+		              					<strong class="h4">{{post.deadline | date:'h:mm'}}</strong><br> 
+		              					<small class="label bg-light">{{post.deadline | date:'a'}}</small><br>
+		              				</span>
+					      		</div>
+					      		
+					      		<div class="pull-right text-center" ng-if="post.options.isEvent"> 
+					      			<span class="pull-left">
+		              					<strong class="h4">{{post.start_time | date:'h:mm'}}</strong><br> 
+		              					<small class="label bg-light">{{post.start_time | date:'a'}}</small><br>
+		              				</span>
+	              					<span class="pull-left" ng-if="post.end_time">&nbsp;&nbsp;to&nbsp;&nbsp;</span>
+		              				<span class="pull-left" ng-if="post.end_time">
+		              					<strong class="h4">{{post.end_time | date:'h:mm'}}</strong><br> 
+		              					<small class="label bg-light">{{post.end_time | date:'a'}}</small>
+		              				</span>
+			              		</div>
+
+					      	</div>
+
+					     	
+				      
+				    	</div>
+					</div>
+				</div>

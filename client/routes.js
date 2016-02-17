@@ -9,12 +9,8 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
         requireLogin: true,
         onlySuperAdmin: false
       },
-      controller: 'Home'
-      // resolve: {
-      //   postPromise: ['alldata', function(alldata){
-      //     return alldata.check();
-      //   }]
-      // }
+      controller: 'Home'  
+      
     })
 
     .state('organization',{
@@ -49,26 +45,36 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
 
     .state('login',{
       url: '/login',
-      templateUrl: 'client/templates/pages/accounts/login.html',
+      views:{
+        "login" : {
+          templateUrl: 'client/templates/layout/login.html',
+          controller: 'Login'
+        }
+      },
+      
       data: {
         requireLogin: false,
         onlySuperAdmin: false
-      },
-      controller: 'Login'
+      }
     })
 
     .state('register',{
       url: '/register',
-      templateUrl: 'client/templates/pages/accounts/register.html',
+      views:{
+        "register": {
+          templateUrl: 'client/templates/layout/register.html',    
+          controller: 'Register'
+        }
+      },
       data: {
         requireLogin: false,
         onlySuperAdmin: false
       },
-      controller: 'Register'
+      
     })
 
     .state('group-create',{
-      url: '/organization/:id/group/create',
+      url: '/group/create',
       templateUrl: 'client/templates/pages/groups/create.html',
       data: {
         requireLogin: true,
@@ -78,7 +84,7 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
     })
 
     .state('groups', {
-      url: '/organization/:id/groups',
+      url: '/groups',
       templateUrl: 'client/templates/pages/groups/groups.html',
       data: {
         requireLogin: true,
@@ -88,7 +94,7 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
     })
 
     .state('group-edit',{
-      url: '/organization/:id/group/:grp_id/edit',
+      url: '/group/:grp_id/edit',
       templateUrl: 'client/templates/pages/groups/edit.html',
       data: {
         requireLogin: true,
@@ -157,54 +163,110 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
       controller: 'Subscribe'
     })
 
-    // .state('all-groups', {
-    //   url: '/groups',
-    //   templateUrl: 'client/templates/pages/groups/all-groups.html',
-    //   data: {
-    //     requireLogin: true
-    //   },
-    //   controller: 'All-Groups'
-    // })
-
     .state('resendVerification', {
       url: '/resendverification',
-      templateUrl: 'client/templates/pages/accounts/resendVerification.html',
+      views:{
+        'others': {
+          templateUrl: 'client/templates/pages/accounts/resendVerification.html',
+          controller: 'ResendVerification'
+        }
+      },
       data: {
         requireLogin: false,
         onlySuperAdmin: false
-      },
-      controller: 'ResendVerification'
+      }
+
     })
 
     .state('forgotPassword', {
       url: '/forgotpassword',
-      templateUrl: 'client/templates/pages/accounts/forgotPassword.html',
+      views: {
+        'others': {
+          templateUrl: 'client/templates/pages/accounts/forgotPassword.html',
+          controller: 'ForgotPassword'
+        }  
+      },
       data: {
         requireLogin: false,
         onlySuperAdmin: false
       },
-      controller: 'ForgotPassword'
     })
 
     .state('reset-password',{
       url: '/reset-password/:token',
-      templateUrl: 'client/templates/pages/accounts/reset-password.html',
+      views:{
+        'others':{
+          templateUrl: 'client/templates/pages/accounts/reset-password.html',    
+          controller: 'ResetPassword'
+        }
+      },
       data:{
         requireLogin: false,
         onlySuperAdmin: false
-      },
-      controller: 'ResetPassword'
+      }
     })
 
     .state('verifyEmail', {
       url: '/verify-email/:token',
-      templateUrl: 'client/templates/pages/accounts/verify-email.html',
+      views:{
+        'others': {
+          templateUrl: 'client/templates/pages/accounts/verify-email.html',    
+          controller: 'VerifyEmail'
+        }
+      },
+      
       data:{
         requireLogin: false,
         onlySuperAdmin: false
-      },
-      controller: 'VerifyEmail'
+      }
+      
 
+    })
+
+    .state('groups-favourite', {
+      url: '/groups/favourite',
+      templateUrl: 'client/templates/pages/groups/groups-favourite.html',
+      data: {
+        requireLogin: true,
+        onlySuperAdmin: false
+      },
+      controller: 'Groups-Favourite'
+    })
+
+    .state('email',{
+      url: '/email',
+      views:{
+        'others':{
+          templateUrl: 'client/templates/emails/events.html',    
+          controller: 'Event-Email',
+        }
+      },
+      data:{
+        requireLogin: true,
+        onlySuperAdmin: false
+      }
+      
+    })
+
+    .state('profile', {
+      url: '/profile',
+      templateUrl: 'client/templates/pages/accounts/profile.html',
+      controller: 'Profile',
+      data:{
+        requireLogin: true,
+        onlySuperAdmin: false
+      }
+      
+    })
+
+    .state('subscribe', {
+      url: '/subscribe',
+      templateUrl: 'client/templates/pages/groups/subscribe.html',
+      controller: 'Group-Subscribe',
+      data: {
+        requireLogin: true,
+        onlySuperAdmin: false
+      }
     })
 
   $urlRouterProvider.otherwise("/home");

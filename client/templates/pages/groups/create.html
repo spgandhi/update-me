@@ -1,4 +1,4 @@
-<div id="page-wrapper">
+<div id="page-wrapper" class="col-lg-8 col-centered">
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
@@ -29,6 +29,13 @@
 
             <div class="checkbox">
                 <label><input type="checkbox" ng-model="newGroup.options.manager_draft" value="false">Manager's Post as Draft</label>
+            </div>
+
+            <div class="form-group">
+                <label for="sel1">Select Organization:</label>
+                    <select class="form-control" ng-model="newGroup.orgId" ng-options="org._id as org.name for org in organizations track by org._id">
+                            <option></option>
+                    </select>
             </div>
 
 

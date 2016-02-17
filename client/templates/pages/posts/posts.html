@@ -1,4 +1,4 @@
-<div id="page-wrapper">
+<div id="page-wrapper" class="col-lg-8 col-centered">
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
@@ -6,16 +6,19 @@
                 <a class="btn btn-default btn-xs pull-right" href="/#/post/create">Add<i class="fa fa-plus"></i></a>
             </h1> 
         </div>
+
+        <!-- <input type="checkbox" ng-model="mine" ng-change="eventFilter()"> Mine -->
+        <input class="pull-right" type="text" ng-model="searchKeyword"> <span class="pull-right">Search</span>
         <!-- /.col-lg-12 -->
         <div class="col-lg-12">
         	<table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Date</th>
                         <th>Title</th>
                         <th>Group</th>
                         <th>Event</th>
-                        <th>Author</th>
+                        <th>Clicks</th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -23,17 +26,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="post in posts">
-                        <td>{{post._id}}</td>
+                    <tr ng-repeat="post in posts | orderBy: '-created_at' |filter:searchKeyword">
+                        <td>{{post.created_at | date: 'd MMM, yy'}}</td>
                         <td>{{post.title}}</td>
                         <td>{{post.group.name}}</td>
                         <td>{{post.options.isEvent}}</td>
                         <!-- <td ng-init="author=findAuthor(post.created_by);">{{author}}</td> -->
-                        <td></td>
+                        <td>{{post.options.clicks.length}}</td>
                         <td><button class="btn btn-warning" ng-click="goto(post._id)">Edit</button></td>
                         <td><button class="btn btn-danger" ng-click="removePost(post); removeToast();">Delete</button></td>
-                        <td ng-show="post.post_status=='draft' && userRole == 'superAdmin'"><button class="btn" ng-click="post.post_status = 'publish'; publishToast();">Publish Now</button></td>
-                        <td ng-show="post.post_status=='draft' && userRole == 'superAdmin'">Draft</td>
+                        <td ng-show="post.post_status=='draft' && canPublish(post.group._id)"><button class="btn" ng-click="publish(post);">Publish Now</button></td>
+                        <td ng-show="post.post_status=='draft'">Draft</td>
                     </tr>
                 </tbody>
             </table>

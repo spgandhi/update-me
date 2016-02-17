@@ -1,21 +1,19 @@
-Posts.allow({
+// Posts.allow({
 
-	insert: function(userId, doc){
-		return true;
-	},
+// 	insert: function(userId, doc){
+// 		return true;
+// 	},
 
-  	remove: function (userId, doc) {
-  		// check for proper permissions using passed arguments if any here
-  		return true;
-	},
+//   	remove: function (userId, doc) {
+//   		// check for proper permissions using passed arguments if any here
+//   		return true;
+// 	},
 
-	update: function(){
-		return true;
-	}
+// 	update: function(){
+// 		return true;
+// 	}
 
-	
-
-});
+// });
 
 // Publish
 Meteor.publish('allUsers', function(){
@@ -24,16 +22,19 @@ Meteor.publish('allUsers', function(){
 
 Meteor.publish('posts', function(reason){
   // return Posts.find({'group._id': {$in: Roles.getGroupsForUser( this.userId) }});
-  if(reason == 'frontend')
-  	return Posts.find({post_status : 'publish'});
+  // if(reason == 'frontend')
+  // 	return Posts.find({post_status : 'publish'});
 
-  if(reason == 'backend')
-  	return Posts.find({ $or: [ {created_by: this.userId} ]})
+  // if(reason == 'backend')
+  // 	return Posts.find({ $or: [ {created_by: this.userId} ]})
 
-  if(reason == 'super-admin')
-  	return Posts.find({});
+  // if(reason == 'super-admin')
+  // 	return Posts.find({});
   
-  return Posts.find({post_status : 'publish'});  
+  // return Posts.find({post_status : 'publish'});  
+
+  return Posts.find({});
+
 })
 
 // After Insert
@@ -47,19 +48,20 @@ Posts.after.remove(function(userId, doc){
 })
 
 // Before Insert
-Posts.before.insert(function(userId, doc){
+// Posts.before.insert(function(userId, doc){
 
-	var grp = Groups.findOne({_id: doc.group._id});
+// 	var grp = Groups.findOne({_id: doc.group._id});
 
-	if(grp.options.manager_draft){
+// 	if(grp.options.manager_draft){
 		
-		org = Organizations.findOne({_id: grp.orgId});
+// 		// org = Organizations.findOne({_id: grp.orgId});
+//     Roles.userIsInRole(userId, 'can-manage', grp.orgId);
 		
-		if(org.createdBy == userId){
-			doc.post_status = 'publish';
-		}else{
-			doc.post_status = 'draft';
-		}
+// 		if(org.createdBy == userId){
+// 			doc.post_status = 'publish';
+// 		}else{
+// 			doc.post_status = 'draft';
+// 		}
 
-	}
-})
+// 	}
+// })

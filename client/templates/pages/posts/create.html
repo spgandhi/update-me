@@ -1,4 +1,4 @@
-<div id="page-wrapper">
+<div id="page-wrapper" class="col-lg-8 col-centered">
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
@@ -11,16 +11,21 @@
         	<form>
               
               <!-- Organiztion Name Field -->
-            <div class="form-group">
+            <div class="form-group" ng-class="{'has-error' : newPost.title.length==50}">
                 <label>Title</label>
-                <input ng-model="newPost.title" type="text" class="form-control" placeholder="Title">
+                <span class="pull-right">{{newPost.title.length}}/50</span>
+                <input ng-model="newPost.title" type="text" class="form-control" placeholder="Title" ng-change="charLimit(50, 'title')">
             </div>
 
             <!-- Organiztion Name Field -->
             <div class="form-group">
                 <label>Content</label>
-                <textarea ng-model="newPost.content" type="text" class="form-control"></textarea>
+                <!-- <span class="pull-right">{{editorLength}}/500</span> -->
+                <div class="editable form-control"></div>
             </div>
+
+            
+            <script>var editor = new MediumEditor('.editable', {targetBlank: true, anchor:{linkValidation: true}});</script>
 
               <!-- Private Organization Checkbox -->
             <div class="checkbox">
@@ -61,7 +66,7 @@
 
 
             <div class="form-group">
-                <label for="sel1">Select list:</label>
+                <label for="sel1">Select Group:</label>
                     <select class="form-control" ng-model="newPost.group" ng-options="group as group.name for group in groups track by group._id">
                             <option></option>
                     </select>

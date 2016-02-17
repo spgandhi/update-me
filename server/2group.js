@@ -1,8 +1,9 @@
 // Publish
 
-Meteor.publish('groups', function(orgId){
-	return Groups.find({_id: {$in: Roles.getGroupsForUser( this.userId ) }});
+Meteor.publish('groups', function(){
+	return Groups.find({$or: [ {orgId : {$in: Roles.getGroupsForUser( this.userId ) } }, {_id: {$in: Roles.getGroupsForUser( this.userId ) }} ]});
 })
+
 
 Meteor.publish('user-groups', function(){
 	return Groups.find({_id: {$in: Roles.getGroupsForUser( this.userId ) }});
@@ -30,10 +31,9 @@ Groups.after.insert(function(userId, doc){
   	
     // Organizations.update({_id: orgid}, { $push: {'groups': doc._id} });
     var org = Organizations.findOne({_id:doc.orgId});
-    console.log(org);
+    
     org.groups.push(doc._id);
     Organizations.update({_id:doc.orgId},org);
-    // console.log(org);
     
   
 })
@@ -103,6 +103,7 @@ Groups.after.remove(function(userId, doc){
 	var org = Organizations.findOne({_id: doc.orgId});
 	org.groups.splice(org.groups.indexOf(doc._id),1);
 	Organizations.update({_id:doc.orgId}, org);
-	// Organizations.update({_id: doc.orgId}, {$pullAll: {groups: [doc._id]}});
+	
+	Posts.remove({'group._id' : doc._id});
 
 });

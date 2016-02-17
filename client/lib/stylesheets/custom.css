@@ -14,3 +14,29 @@ span.group-name {
     z-index: 10000;
     opacity: 0.7;
 }
+
+.col-centered {
+    margin: auto;
+    float: none;
+}
+
+.main-view{
+    margin-top: 30px;
+}
+
+span#addeventatc7 {
+    border: 0;
+}
+
+.hbox > aside, .hbox > section{
+    height: 100vh;
+}
+
+a{
+    cursor: pointer;
+}
+
+.editable{
+    min-height: 100px;
+    height: auto;
+}

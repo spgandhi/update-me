@@ -1,5 +1,6 @@
+var app = angular.module('update-me');
 // Add + Main
-angular.module('update-me').controller('Organization', ['$scope', 'alldata','$meteor', 'toastr', '$location', '$stateParams', function($scope, alldata, $meteor, toastr, $location, $stateParams){
+app.controller('Organization', ['$scope', 'alldata','$meteor', 'toastr', '$location', '$stateParams', function($scope, alldata, $meteor, toastr, $location, $stateParams){
 
   var promise = alldata.check();
 
@@ -89,8 +90,6 @@ angular.module('update-me').controller('Organization', ['$scope', 'alldata','$me
     // console.log(Organizations);
   }
 
-  
-
   $scope.tokenfield();  // Initializing the tokenfield
 
   $scope.orgInit();
@@ -98,7 +97,7 @@ angular.module('update-me').controller('Organization', ['$scope', 'alldata','$me
 }])
 
 // Single
-angular.module('update-me').controller('Organization-Single', ['$scope', 'alldata', '$meteor','$stateParams', 'toastr', function($scope, alldata, $meteor, $stateParams, $toastr){
+app.controller('Organization-Single', ['$scope', 'alldata', '$meteor','$stateParams', 'toastr', function($scope, alldata, $meteor, $stateParams, $toastr){
 
   var promise = alldata.check();
 
@@ -118,7 +117,7 @@ angular.module('update-me').controller('Organization-Single', ['$scope', 'alldat
 }])
 
 // Edit
-angular.module('update-me').controller('Org-Edit', ['$scope', 'alldata', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $meteor, toastr, $stateParams){
+app.controller('Org-Edit', ['$scope', 'alldata', '$meteor', 'toastr', '$stateParams', function($scope, alldata, $meteor, toastr, $stateParams){
    
     var promise = alldata.check();
 

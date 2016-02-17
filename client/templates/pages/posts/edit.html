@@ -1,4 +1,4 @@
-<div id="page-wrapper">
+<div id="page-wrapper" class="col-lg-8 col-centered">
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
@@ -19,8 +19,11 @@
             <!-- Organiztion Name Field -->
             <div class="form-group">
                 <label>Content</label>
-                <textarea ng-model="post.content" type="text" class="form-control"></textarea>
+                <div class="editable form-control"></div>
             </div>
+            <script>
+                editor = new MediumEditor('.editable', {targetBlank: true, anchor:{linkValidation: true}});
+                </script>
 
             <!-- Organiztion Name Field -->
             <div class="form-group" ng-show="checkIfSuperAdmin()">

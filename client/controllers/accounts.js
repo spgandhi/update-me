@@ -1,45 +1,126 @@
-angular.module('update-me').controller('Register', ['$scope', 'toastr','$location', function($scope, toastr, $location){
+var app = angular.module('update-me');
+
+app.controller('Profile', ['$scope', 'toastr', function($scope, toastr){
+  
+  $scope.user = {
+    currentPassword: '',
+    newPassword: '',
+  };
+
+  u = Meteor.user();
+
+  if(u){
+    
+    if('name' in u.profile)
+      $scope.user.name = u.profile.name;
+    $scope.user.email = u.emails[0].address;
+  }
+
+  $scope.updateUser = function(){
+
+    Meteor.users.update(Meteor.userId(), {$set: {'profile.name':$scope.user.name}}, function(err){
+      if(!err)
+        toastr.success('Profile Updated Successfully', 'Success');
+    });
+  }
+
+  $scope.changePassword = function(){
+
+    if($scope.user.currentPassword == ''){
+      toastr.error('Current Password cannot be empty.', 'Error');
+      return;
+    }
+
+    if($scope.user.newPassword == '' || $scope.user.newPassword.length <= 5){
+      toastr.error('New Password should be min 6 characters.', 'Error');
+      return;
+    }
+
+
+    if($scope.user.currentPassword && $scope.user.currentPassword == $scope.user.newPassword){
+      toastr.error('Password cannot be same', 'Error')
+    }else{
+      
+      if($scope.user.currentPassword){
+        Accounts.changePassword($scope.user.currentPassword, $scope.user.newPassword, function(err){
+          if(err)
+            toastr.error(err.message, 'Error');
+          else
+            toastr.success('Password changed Successfully', 'Success');
+            
+        })
+      }
+      
+    }
+
+  }
+
+}])
+
+app.controller('Register', ['$scope', 'toastr','$location', function($scope, toastr, $location){
   
   if(Meteor.user()){
     $location.path('/home');
   }
 
   $scope.register = function(){
-    
 
-    Accounts.createUser({email: $scope.newUser.email, password: $scope.newUser.password}, function(err){
+    Accounts.createUser({email: $scope.newUser.email, password: $scope.newUser.password, profile : {'name':$scope.newUser.name, 'favourites':[]}}, function(err){
       
       if(err){
         toastr.error(err.reason, 'Error');
       }else{
         toastr.success('Registration Successful', 'Success');
         $scope.newUser = [];
-        Meteor.logout(function(err){
-          if(!err)
-            $location.path('/login');
+        Meteor.call('userCheckRolesOnRegister', Meteor.user().emails[0].address , Meteor.userId(), function(err, result){
+          if(!err){
+            Meteor.logout(function(error){
+            if(!error)
+              $location.path('/login');
+            })  
+          }
         })
+        
       }
 
     });
   }
 }])
 
-angular.module('update-me').controller('Login', ['$scope', 'toastr','$location', function($scope, toastr, $location){
+app.controller('Login', ['$scope', 'toastr', 'alldata', '$location',  function($scope, toastr, alldata, $location){
     
   if(Meteor.user()){
     $location.path('/home');
   }
 
-  $scope.Login = function(){
+  $scope.Login = function(username, password){
 
-    Meteor.call('checkEmail',($scope.user.email), function(err,value){
+    Meteor.call('checkEmail',(username), function(err,value){
       
       // if(value){
-        Meteor.loginWithPassword($scope.user.email, $scope.user.password, function(err){
+        Meteor.loginWithPassword(username, password, function(err){
         
           if(err){
             toastr.error(err.reason, 'Error');
           }else{
+
+            var promise = alldata.check();
+            
+            promise.then(function(){
+              
+              if("profile" in alldata.currentUser && "name" in alldata.currentUser.profile){
+                $scope.$parent.user = alldata.currentUser.profile.name;
+              }else{
+                $scope.$parent.user = alldata.currentUser.emails[0].address;
+              }
+
+              $scope.$parent.org_id = false;
+              org = Organizations.findOne({name: 'DAIICT'});
+              if(org){
+                $scope.$parent.org_id = org._id;
+              }
+
+            })
             toastr.success('Welcome back!', 'Success');
             $location.path('/home');
           }
@@ -54,7 +135,7 @@ angular.module('update-me').controller('Login', ['$scope', 'toastr','$location',
 
 }])
 
-angular.module('update-me').controller('ResendVerification', ['$scope', 'toastr', '$location', function($scope, toastr, $location){
+app.controller('ResendVerification', ['$scope', 'toastr', '$location', function($scope, toastr, $location){
 
   if(Meteor.user())
     $location.path('/home');
@@ -70,7 +151,7 @@ angular.module('update-me').controller('ResendVerification', ['$scope', 'toastr'
 
 }])
 
-angular.module('update-me').controller('ForgotPassword', ['$scope', 'toastr', '$location', function($scope, toastr, $location){
+app.controller('ForgotPassword', ['$scope', 'toastr', '$location', function($scope, toastr, $location){
 
   if(Meteor.user())
     $location.path('/home');
@@ -94,7 +175,7 @@ angular.module('update-me').controller('ForgotPassword', ['$scope', 'toastr', '$
 
 
 
-angular.module('update-me').controller('ResetPassword', ['$scope', 'toastr', '$location', '$stateParams', function($scope, toastr, $location, $stateParams){
+app.controller('ResetPassword', ['$scope', 'toastr', '$location', '$stateParams', function($scope, toastr, $location, $stateParams){
 
   if(Meteor.user())
     $location.path('/home');
@@ -102,18 +183,19 @@ angular.module('update-me').controller('ResetPassword', ['$scope', 'toastr', '$l
   $scope.token = $stateParams['token'];
 
   $scope.passwordReset = function(password){
-    console.log(password);
     Accounts.resetPassword($scope.token, password, function(err){
-      if(!err)
+      if(!err){
         toastr.success('Password Reset Successful!', 'Success');
-      else
+        $location.path('/home');
+      }else{
         toastr.error('Password Reset Failed!', 'Error');
+      }
     })
   }
 
 }])
 
-angular.module('update-me').controller('VerifyEmail', ['$scope', 'toastr', '$location', '$stateParams', function($scope, toastr, $location, $stateParams){
+app.controller('VerifyEmail', ['$scope', 'toastr', '$location', '$stateParams', function($scope, toastr, $location, $stateParams){
 
   if(Meteor.user())
     $location.path('/home');

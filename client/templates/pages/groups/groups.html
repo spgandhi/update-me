@@ -1,9 +1,9 @@
-<div id="page-wrapper">
+<div id="page-wrapper" class="col-lg-8 col-centered">
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
                 Groups
-                <span><a class="btn btn-default btn-xs pull-right" href="/#/organization/{{org_id}}/group/create">Add</a></span>
+                <span><a class="btn btn-default btn-xs pull-right" href="/#/group/create">Add<i class="fa fa-plus"></i></a></span>
             </h1>
             
         </div>
@@ -14,19 +14,21 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Private</th>
-                        <!-- <th></th> -->
+                        <th class="text-center">Private</th>
+                        <th class="text-center">Manager Draft</th>
                         <th></th>
                         <th></th>
+
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="grp in groups" ng-click="alert('Hello');">
                         <td>{{grp._id}}</td>
                         <td>{{grp.name}}</td>
-                        <td>{{grp.options.isPrivate}}</td>
+                        <td class="text-center">{{grp.options.isPrivate}}</td>
+                        <td class="text-center">{{grp.options.manager_draft}}</td>
                         <!-- <td><a type="button" class="btn btn-primary" href="/#/organization/{{org_id}}/group/{{grp._id}}">Manage</a></td> -->
-                        <td><a type="button" class="btn btn-warning" href="/#/organization/{{org_id}}/group/{{grp._id}}/edit">Edit</a></td>
+                        <td><a type="button" class="btn btn-warning" href="/#/group/{{grp._id}}/edit">Edit</a></td>
                         <td><button type="button" class="btn btn-danger" ng-click="removeGroup(grp); removeToast();">Delete</button></td>
                     </tr>
                 </tbody>

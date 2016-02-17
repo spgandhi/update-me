@@ -1,5 +1,6 @@
+var app = angular.module('update-me');
 // Create
-angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', function($scope, alldata, $meteor, toastr){
+app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', function($scope, alldata, $meteor, toastr){
   
   testing = false;
 
@@ -23,35 +24,35 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
     });
 
   })
-  
-    
 
   $scope.newPost = {
     title: '',
     content: '',
     options: {
       isEvent:false,
-      hasDeadline: false
+      hasDeadline: false,
+      clicks: []
     },
     created_by: Meteor.userId(),
     created_at: Date.now(),
     post_status: 'publish'
   }
 
-  $('#start-time').datetimepicker({
-    sideBySide: true
-  })
-  .on('dp.change', function(e){
-    $('#end-time').data('DateTimePicker').minDate(e.date);
-  });
+  $('#start-time').datetimepicker({useCurrent: true})
 
   $('#end-time').datetimepicker({
-    sideBySide: true,
+    // sideBySide: true,
     useCurrent: false
   })
-  .on('dp.change', function(e){
-    $('#start-time').data('DateTimePicker').maxDate(e.date);
-  });
+
+  $('#start-time').on('dp.change', function(e){
+     $('#end-time').data("DateTimePicker").minDate(e.date);
+  })
+
+  $('#end-time').on('dp.change', function(e){
+     $('#start-time').data("DateTimePicker").maxDate(e.date);
+  })
+
 
   $('#deadline').datetimepicker({
     sideBySide: true,
@@ -69,6 +70,10 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
 
   }
 
+  $scope.editorInit = function(){
+      var editor = new MediumEditor('.editable');
+  }
+
   $scope.addPost = function(){
 
     $scope.appLoading = true;
@@ -82,8 +87,8 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
       err = 'Please choose a deadline';
     if($scope.newPost.group === undefined || $scope.newPost.group == '')
       err = 'Please choose a group.';
-    if($scope.newPost.content === undefined || $scope.newPost.content.length < 4)
-      err = 'Content should be min 4 characters.';
+    if($scope.newPost.content === undefined || $('.editable').text().length < 4 || $('.editable').text().length > 500)
+      err = 'Content should be min 4 and max is 500 characters.';
     if($scope.newPost.title === undefined || $scope.newPost.title.length < 4)
       err = 'Title should be min 4 characters.';
 
@@ -92,6 +97,9 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
       err = '';
       return;
     }
+
+    $scope.newPost.content = $('.editable').html();
+
 
     if( $scope.newPost.options.isEvent && $('#start-time').val().length > 0 ){
       $scope.newPost.start_time =  new Date($('#start-time').val());
@@ -104,24 +112,39 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
       $scope.newPost.deadline = new Date($('#deadline').val());
     }
 
-    if(testing){
-      console.log($scope.newPost)
-    } else {
+    var grp = Groups.findOne({_id: $scope.newPost.group._id});
 
+    if(grp.options.manager_draft){
+      
+      if(Roles.userIsInRole(Meteor.userId(), 'can-manage', grp.orgId)){
+        $scope.newPost.post_status = 'publish';
+      }else{
+        $scope.newPost.post_status = 'draft';
+      }
+
+    }
+
+    
       // var promise = alldata.add('post', $scope.newPost);
       Posts.insert($scope.newPost, function(){
 
-        toastr.success('New Post Added!', 'Success');
+        if($scope.newPost.post_status == 'publish')
+          toastr.success('New Post Added!', 'Success');
+        else if($scope.newPost.post_status == 'draft')
+          toastr.success('Saved as draft. Requires admin approval', 'Success');
         $scope.newPost = {
           title: '',
           content: '',
           options: {
             isEvent:false,
-            hasDeadline: false
+            hasDeadline: false,
+            clicks: []
           },
           created_by: Meteor.userId(),
-          created_at: Date.now()
+          created_at: Date.now(),
+          post_status: 'publish'
         }
+        $('.editable').text(''); 
         $('#start-time').val('');
         $('#end-time').val('');
         $('#deadline').val('');
@@ -130,12 +153,29 @@ angular.module('update-me').controller('Post-Create', ['$scope', 'alldata', '$me
 
     }
 
+  $scope.charLimit = function(limit, what){
+
+    if(what == 'title'){
+      if($scope.newPost.title.length > limit)
+        $scope.newPost.title = $scope.newPost.title.substr(0, limit);
+    }
+
+    if(what == 'content'){
+      if($scope.newPost.content.length > limit)
+        $scope.newPost.content = $scope.newPost.content.substr(0, limit);
+    }
+
+  }
+
+  $scope.editorLength = function(){
+    $scope.editorLength =  $('.editable').text().length
+      
   }
 
 }])
 
 // Edit
-angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toastr', '$stateParams', function($scope, alldata , toastr, $stateParams){
+app.controller('Posts-Edit', ['$scope', 'alldata' ,'toastr', '$stateParams', function($scope, alldata , toastr, $stateParams){
   
   $scope.userRole = 'user';
 
@@ -174,6 +214,9 @@ angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toas
       useCurrent: true
     })
 
+    
+    editor.setContent($scope.post.content, 0);
+
   })
 
   $scope.checkboxChange = function(box){
@@ -197,6 +240,7 @@ angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toas
         return false;
       }
   }
+      
 
   $scope.updatePost = function(){
 
@@ -210,8 +254,8 @@ angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toas
       err = 'Please choose a deadline';
     if($scope.post.group === undefined || $scope.post.group == '')
       err = 'Please choose a group.';
-    if($scope.post.content === undefined || $scope.post.content.length < 4)
-      err = 'Content should be min 4 characters.';
+    if($scope.post.content === undefined || $('.editable').text().length < 4 || $('.editable').text().length > 500)
+      err = 'Content should be min 4 and max is 500 characters.';
     if($scope.post.title === undefined || $scope.post.title.length < 4)
       err = 'Title should be min 4 characters.';
 
@@ -221,12 +265,26 @@ angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toas
       return;
     }
 
+    $scope.post.content = $('.editable').html();
+
+    // if( $scope.post.options.isEvent && $('#start-time').val().length > 0 ){
+    //   $scope.post.start_time =  new Date($('#start-time').val());
+    //   $scope.post.end_time = new Date($('#end-time').val());
+    // }else if($scope.post.options.hasDeadline && $('#deadline').val().length > 0){
+    //   $scope.post.deadline = new Date($('#deadline').val());
+    // }
+
     if( $scope.post.options.isEvent && $('#start-time').val().length > 0 ){
       $scope.post.start_time =  new Date($('#start-time').val());
-      $scope.post.end_time = new Date($('#end-time').val());
+      
+      if( $('#end-time').val().length > 0){
+        $scope.post.end_time = new Date($('#end-time').val());
+      }
+
     }else if($scope.post.options.hasDeadline && $('#deadline').val().length > 0){
       $scope.post.deadline = new Date($('#deadline').val());
     }
+
 
     Posts.update({_id:$scope.post._id}, $scope.post, function(){
       toastr.success('Post updated!', 'Success');
@@ -237,27 +295,57 @@ angular.module('update-me').controller('Posts-Edit', ['$scope', 'alldata' ,'toas
 }])
 
 // Display
-angular.module('update-me').controller('Posts', ['$scope', 'alldata', '$meteor', 'toastr','$location', function($scope, alldata, $meteor, toastr, $location){
+app.controller('Posts', ['$scope', 'alldata', 'toastr','$location', function($scope, alldata, toastr, $location){
 
-  $scope.userRole = 'user';
+  $scope.user_id = Meteor.userId();
   
   var promise = alldata.check();
 
+  $scope.print = function(data){
+    console.log(data);
+  }
+
+
   promise.then(function(data){
 
-      $scope.org_id = Organizations.findOne({'name':'DAIICT'})._id;
-    
-      if(Roles.userIsInRole(Meteor.userId(), ['can-manage'], $scope.org_id)){
-        $scope.userRole  = 'superAdmin';
-      }
+      $scope.orgs = Organizations.find({},{fields:{_id:1}}).fetch();
 
-      if( $scope.userRole == 'superAdmin' ){
-          $scope.posts = Posts.find({}).fetch();
-      }else{
-          $scope.posts = Posts.find({}).fetch();
-      }
 
-  })
+
+      $scope.org_ids = [];
+      $scope.grp_ids = [];
+
+      angular.forEach($scope.orgs, function(value, key){
+        $scope.org_ids.push(value._id); 
+      })
+
+      
+      $scope.groups = Groups.find({$or: [ {orgId: {$in: $scope.org_ids}}, {_id: {$in: Roles.getGroupsForUser(Meteor.userId())}}] }, {fields: {_id:1}}).fetch();
+
+      angular.forEach($scope.groups, function(value, key){
+        $scope.grp_ids.push(value._id); 
+      })
+
+      $scope.posts = Posts.find({ $or: [ { 'group._id': { $in: $scope.grp_ids } } , {'created_by': Meteor.userId() } ] } ).fetch();
+      console.log($scope.posts);
+
+
+  });
+
+  $scope.canPublish = function(group_id){
+    grp = Groups.findOne({_id: group_id}, {fields: {'_id':1, 'orgId':1}});
+    if(grp){
+      org = Organizations.findOne({_id:grp.orgId}, {fields: {'_id':1}});
+      if(org){
+        if( Roles.userIsInRole(Meteor.userId(), 'can-manage', org._id) ) 
+          return true;
+        else{
+          return false;
+        }
+      }
+    }
+    return false;
+  }
 
   $scope.removePost = function(post){
     Posts.remove(post._id);
@@ -273,28 +361,6 @@ angular.module('update-me').controller('Posts', ['$scope', 'alldata', '$meteor',
     toastr.success('Post deleted.', 'Success');
   }
 
-  // $scope.if_user_can_edit = function(id, grp_id){
-  //   if( Meteor.userId() == id ){
-  //     return true;
-  //   } else if ( Roles.userIsInRole( Meteor.userId(), ['can-manage'], grp_id ) || Roles.userIsInRole( Meteor.userId(), ['can-manage'], $scope.org_id ) ) {
-  //     console.log('Is Admin');
-  //     return true;
-  //   } else {
-  //     console.log('Not An Admin');
-  //     return false;
-  //   }
-  // }
-
-  // $scope.if_user_can_delete = function(id, grp_id){
-  //   if( Meteor.userId() == id ){
-  //     return true;
-  //   } else if ( Roles.userIsInRole( Meteor.userId(), ['can-manage'], grp_id ) || Roles.userIsInRole( Meteor.userId(), ['can-manage'], $scope.org_id ) ) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
   $scope.findAuthor = function(id){
     
     Meteor.subscribe('allUsers', function(){
@@ -303,10 +369,12 @@ angular.module('update-me').controller('Posts', ['$scope', 'alldata', '$meteor',
     
   }
 
-  $scope.publishToast = function(){
+
+  $scope.publish = function(post){
+    post.post_status = 'publish';
+    Posts.update({_id: post._id}, {$set: {post_status : 'publish'}});
     toastr.success('Post Published!', 'Success');
   }
-
   
 
 }])
