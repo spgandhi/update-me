@@ -153,16 +153,6 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
       controller : 'Posts-Edit'
     })
 
-    .state('subscribe', {
-      url: '/subscribe',
-      templateUrl: 'client/templates/pages/subscribe.html',
-      data: {
-        requireLogin: true,
-        onlySuperAdmin: true
-      },
-      controller: 'Subscribe'
-    })
-
     .state('resendVerification', {
       url: '/resendverification',
       views:{

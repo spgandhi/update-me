@@ -14,7 +14,9 @@
                <input type="password" placeholder="Password" class="form-control no-border" ng-model="u.pass">
             </div>
           </div>
-          <button type="submit" class="btn btn-lg btn-primary btn-block" ng-click="Login(u.mail, u.pass);">Sign in</button>
+          <a class="btn btn-lg btn-primary btn-block ladda-button" id="login-btn" ng-click="Login(u.mail, u.pass);" data-style="zoom-in">
+              <span class="ladda-label">Login</span>
+          </a>
           <div class="text-center m-t m-b">
             <a style="display: block" href="/#/forgotpassword"><small>Forgot password?</small></a>
             <a style="display: block" href="/#/resendverification"><small>Resend Email Verification?</small></a>

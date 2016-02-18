@@ -28,6 +28,21 @@ Meteor.startup(function () {
 
   Meteor.methods({
 
+    'groupSubscribe' : function(group_id){
+      return Roles.addUsersToRoles(Meteor.userId(), 'is-subscribed', group_id);
+    },
+
+    'groupUnsubscribe' : function(group_id){
+      query = {};
+      query['roles.'+group_id] = 'is-subscribed';
+      Meteor.users.update({_id: Meteor.userId()}, {$pull: query }, function(err){
+        if(!err)
+          return true;
+        else
+          return false;
+      });
+    },
+
     'logoutServer': function(){
       Meteor.users.update( {_id: Meteor.userId()}, {$set: {'services.resume.loginTokens': []}} );
       console.log('user logged out');

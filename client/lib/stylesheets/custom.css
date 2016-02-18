@@ -40,3 +40,7 @@ a{
     min-height: 100px;
     height: auto;
 }
+
+.sub-btn, .unsub-btn{
+    min-width: 150px;
+}

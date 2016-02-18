@@ -87,13 +87,16 @@ app.controller('Register', ['$scope', 'toastr','$location', function($scope, toa
   }
 }])
 
-app.controller('Login', ['$scope', 'toastr', 'alldata', '$location',  function($scope, toastr, alldata, $location){
+app.controller('Login', ['$scope', 'toastr', 'alldata', '$location', '$rootScope',  function($scope, toastr, alldata, $location, $rootScope){
     
   if(Meteor.user()){
     $location.path('/home');
   }
 
   $scope.Login = function(username, password){
+
+    var l = alldata.LaddaBtn.create('#login-btn');
+    l.start();
 
     Meteor.call('checkEmail',(username), function(err,value){
       
@@ -107,23 +110,25 @@ app.controller('Login', ['$scope', 'toastr', 'alldata', '$location',  function($
             var promise = alldata.check();
             
             promise.then(function(){
-              
-              if("profile" in alldata.currentUser && "name" in alldata.currentUser.profile){
-                $scope.$parent.user = alldata.currentUser.profile.name;
+
+              if("profile" in Meteor.user() && "name" in Meteor.user().profile){
+                $rootScope.user = Meteor.user().profile.name;
               }else{
-                $scope.$parent.user = alldata.currentUser.emails[0].address;
+                $rootScope.user = Meteor.user().emails[0].address;
               }
 
-              $scope.$parent.org_id = false;
-              org = Organizations.findOne({name: 'DAIICT'});
+              $rootScope.canManageGroup = false;
+              org = Organizations.findOne({_id: {$in: Roles.getGroupsForUser(Meteor.userId())}});
               if(org){
-                $scope.$parent.org_id = org._id;
+                $rootScope.canManageGroup = true;
               }
 
             })
             toastr.success('Welcome back!', 'Success');
             $location.path('/home');
           }
+
+          l.stop();
 
         });
       // }else{

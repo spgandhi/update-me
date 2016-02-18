@@ -11,7 +11,7 @@
     <div ui-view="login"></div>
     <div ui-view="register"></div>
     <div ui-view="others"></div>
-    <div ng-if="ifUser()" id="wrapper">
+    <div ng-show="user" id="wrapper">
        <section class="vbox">
 
         <nav class="bg-white header header-md navbar navbar-fixed-top-xs box-shadow navbar navbar-default navbar-fixed-top" >
@@ -24,22 +24,13 @@
                 <span class="hidden-nav-xs">Update Me!</span>
               </a>
 
-              <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target=".user">
+              <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target="user">
                 <i class="fa fa-cog"></i>
               </a>
 
             </div>
           
-            <!-- <form class="navbar-form navbar-left input-s-lg m-t m-l-n-xs hidden-xs" role="search">
-              <div class="form-group">
-                <div class="input-group">
-                  <span class="input-group-btn">
-                    <button type="submit" class="btn btn-sm bg-white b-white btn-icon"><i class="fa fa-search"></i></button>
-                  </span>
-                  <input type="text" class="form-control input-sm no-border" placeholder="Search apps, projects...">            
-                </div>
-              </div>
-            </form> -->
+            
             <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user user">
                   
                   <li class="dropdown">
@@ -80,7 +71,7 @@
                           </ul>
                         </li>
 
-                        <li ng-show="org_id" ng-class="{'active': active2==true}" ng-click="active2 =! active2" ng-init="active2=false">
+                        <li ng-show="canManageGroup" ng-class="{'active': active2==true}" ng-click="active2 =! active2" ng-init="active2=false">
                           <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Groups <span class="caret pull-right"></span></a>
                           <ul class="nav dk">
                             <li><a href="/#/groups">All Groups</a></li>

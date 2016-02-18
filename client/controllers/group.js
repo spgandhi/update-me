@@ -220,12 +220,37 @@ app.controller('Groups-Favourite', ['$scope', 'alldata', function($scope, alldat
   // })
 }])
 
-app.controller('Group-Subscribe', ['$scope', 'alldata', function($scope, alldata){
+app.controller('Group-Subscribe', ['$scope', 'alldata', 'toastr', function($scope, alldata, toastr){
+  
   var promise = alldata.check();
 
   promise.then(function(){
     Meteor.subscribe('all-groups', function(){
-      
+      $scope.grps = Groups.find({}).fetch();
+      // console.log($scope.grps);
     })
   })
+
+  $scope.isSubscribed = function(group_id){
+    return Roles.userIsInRole(Meteor.userId(), 'is-subscribed', group_id);
+  }
+
+  $scope.groupSubscribe = function(group_id, groupName){
+    Meteor.call('groupSubscribe', group_id, function(err, result){
+      if(!err)
+        toastr.success('Subscribed!', 'Success');
+      else
+        toastr.error('Subscription Failed!', 'Error');
+    })
+  }
+
+    $scope.groupUnsubscribe = function(group_id, groupName){
+    Meteor.call('groupUnsubscribe', group_id, function(err, result){
+      if(!err)
+        toastr.success('Unsubscribed', 'Success');
+      else
+        toastr.error('Unsubscription Failed!', 'Error');
+    })
+  }
+
 }])

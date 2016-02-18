@@ -38,10 +38,13 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
     post_status: 'publish'
   }
 
-  $('#start-time').datetimepicker({useCurrent: true})
+  $('#start-time').datetimepicker({
+    sideBySide: true,
+    useCurrent: true
+  })
 
   $('#end-time').datetimepicker({
-    // sideBySide: true,
+    sideBySide: true,
     useCurrent: false
   })
 
@@ -74,9 +77,10 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
       var editor = new MediumEditor('.editable');
   }
 
-  $scope.addPost = function(){
-
-    $scope.appLoading = true;
+  $scope.addPost = function(element){
+    
+    var l = Ladda.create(document.querySelector( '#add-post-btn' ));
+    l.start();
 
     err = '';
 
@@ -125,13 +129,13 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
     }
 
     
-      // var promise = alldata.add('post', $scope.newPost);
       Posts.insert($scope.newPost, function(){
 
         if($scope.newPost.post_status == 'publish')
           toastr.success('New Post Added!', 'Success');
         else if($scope.newPost.post_status == 'draft')
           toastr.success('Saved as draft. Requires admin approval', 'Success');
+
         $scope.newPost = {
           title: '',
           content: '',
@@ -148,6 +152,8 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
         $('#start-time').val('');
         $('#end-time').val('');
         $('#deadline').val('');
+
+        l.stop();
 
       })      
 

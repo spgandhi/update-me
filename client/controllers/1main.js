@@ -2,7 +2,7 @@ var app = angular.module('update-me');
 
 app.constant('url', 'http://localhost:3000/#/home');
 
-app.service('alldata', ['$q', 'toastr', function($q, toastr){
+app.service('alldata', ['$q', 'toastr', '$rootScope', function($q, toastr, $rootScope){
 
   var o = {
     content: Posts.find({}),
@@ -11,13 +11,13 @@ app.service('alldata', ['$q', 'toastr', function($q, toastr){
     allPosts: false,
     allOrganizations: false,
     allGroups: false,
-    currentUser: '',
     loading: false,
-    userData: ''
   }
 
-  o.updateUser = function(){
-    o.currentUser = Meteor.user();
+  o.LaddaBtn = {
+    create: function(element){
+      return Ladda.create( document.querySelector (element) );
+    }
   }
 
   o.isSuperAdmin = function(data){
@@ -38,12 +38,17 @@ app.service('alldata', ['$q', 'toastr', function($q, toastr){
 
     var deferred = $q.defer();
 
-    if(o.currentUser==''){
-      if(Meteor.userId())
-        o.currentUser = Meteor.user();
+    if(!$rootScope.user){
+      if(Meteor.userId()){
+        if("profile" in Meteor.user() && "name" in Meteor.user().profile){
+          $rootScope.user = Meteor.user().profile.name;
+        }else{
+          $rootScope.user = Meteor.user().emails[0].address;
+        }
+      } 
     }
     
-    if(!o.allPosts && o.currentUser){
+    if(!o.allPosts && $rootScope.user){
       
       Meteor.subscribe('posts', function(){
         // console.log('Posts Subscribed');
@@ -57,7 +62,7 @@ app.service('alldata', ['$q', 'toastr', function($q, toastr){
 
     }
 
-    if(!o.allGroups && o.currentUser){
+    if(!o.allGroups && $rootScope.user){
       Meteor.subscribe('groups', function(){
         // console.log('Groups Subscribed');
         o.groups = Groups.find({}).fetch();
@@ -68,7 +73,7 @@ app.service('alldata', ['$q', 'toastr', function($q, toastr){
       })
     }
 
-    if(!o.allOrganizations && o.currentUser){
+    if(!o.allOrganizations && $rootScope.user){
       Meteor.subscribe('organizations', function(){
         // console.log('Orgs Subscribed');
         o.organizations = Organizations.find({}).fetch();
@@ -91,7 +96,7 @@ app.service('alldata', ['$q', 'toastr', function($q, toastr){
 }])
 
 
-app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', function($scope, alldata, $meteor, toastr){
+app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', function($scope, alldata, $meteor, toastr, $rootScope){
 
   $scope.yesGroup = false;
   
@@ -109,15 +114,13 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', function($scop
     tomorrow_start.setDate(tomorrow_start.getDate() + 1);
     tomorrow_start.setHours(0,0,0,0);
 
-    $scope.currentUser = alldata.currentUser;
-
-    $scope.posts = Posts.find({post_status: 'publish'}).fetch();
-    $scope.todayEvents = Posts.find({post_status: 'publish', 'options.isEvent': true, start_time: {$gte: start, $lt:end} }).fetch();
-    $scope.upcomingEvents = Posts.find({'post_status':'publish', 'options.isEvent':true, start_time: {$gte: tomorrow_start}}).fetch();
+    $scope.posts = Posts.find({post_status: 'publish', 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
+    $scope.todayEvents = Posts.find({post_status: 'publish', 'options.isEvent': true, start_time: {$gte: start, $lt:end}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')} }).fetch();
+    $scope.upcomingEvents = Posts.find({'post_status':'publish', 'options.isEvent':true, start_time: {$gte: tomorrow_start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
     
     $scope.favourites = Meteor.user().profile.favourites;
 
-    $scope.deadlinePost = Posts.find({'options.hasDeadline': true, deadline: {$gte: start}}).fetch();
+    $scope.deadlinePost = Posts.find({'options.hasDeadline': true, deadline: {$gte: start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
 
 
   })
@@ -129,7 +132,11 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', function($scop
       return false;
     }
 
-    posts = Posts.find( { 'group._id' : group._id, post_status: 'publish' } ).fetch();
+    posts = Posts.find( { $and: [ 
+          { 'group._id' : group._id}, 
+          { 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}, 
+          {post_status: 'publish'} 
+        ] } ).fetch();
     if(posts.length > 0){
       $scope.yesGroup = true;
     }
@@ -185,41 +192,19 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', function($scop
 
 app.controller('Main', ['$scope','$rootScope', 'alldata' ,'Page-Title', 'toastr','$location', function ($scope, $rootScope, alldata, $page, toastr, $location) {  
 
-
-
   var promise = alldata.check();
   
   promise.then(function(data){
+
     $scope.posts = Posts.find({}).fetch();
     
-    org = Organizations.findOne({name: 'DAIICT'});
-    
-    if(org)
-      $scope.org_id = org._id;
-
-    if(alldata.currentUser){
-      if("profile" in alldata.currentUser && "name" in alldata.currentUser.profile){
-        $scope.user = alldata.currentUser.profile.name;
-      }else{
-        $scope.user = alldata.currentUser.emails[0].address;
-      }
+    org = Organizations.findOne({_id: {$in: Roles.getGroupsForUser(Meteor.userId())}});
+    if(org){
+      $rootScope.canManageGroup = true;
     }
 
   })
 
-
-  $scope.ifUser = function(){
-    if(Meteor.userId()){
-      $scope.currentUser = Meteor.user().emails[0].address;
-      return true;
-    }
-    else
-      return false;
-  }
-
-    // $scope.events = Posts.find({"options.isEvent": true}).fetch();
-    
-  
 
   $scope.logout = function(){
       
@@ -227,15 +212,13 @@ app.controller('Main', ['$scope','$rootScope', 'alldata' ,'Page-Title', 'toastr'
       if(err)
         toastr.error('Could not logout!', 'Error');
       else{
-        
-        alldata.currentUser = '';
-        alldata.userData = 'dirty';
-        console.log(alldata.currentUser);
-
+        delete $rootScope.user;
+        $location.path('/login');
         toastr.success('Loged Out!', 'Success');
-        $location.path('/login');    
       }
     })
+
+
 
   }
 
