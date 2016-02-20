@@ -187,22 +187,22 @@ app.controller('Group-Single', ['$scope', 'alldata', '$meteor', '$stateParams', 
 }])
 
 
-app.controller('Groups-Favourite', ['$scope', 'alldata', function($scope, alldata){
+app.controller('Groups-Favourite', ['$scope', function($scope){
   // var promise = alldata.check();
-
+  
+  
   $scope.checkIfFavourite = function(grp_id){
-    if(Meteor.user().profile){
-      if( Meteor.user().profile.favourites){
+    if( Meteor.user() && 'profile' in Meteor.user() && 'favourites' in Meteor.user().profile ){
           if( Meteor.user().profile.favourites.indexOf(grp_id) != -1)
-            return 'active';
+            return true;
       }else{
         Meteor.users.update( {_id:Meteor.userId()}, {$set: {'profile.favourites': []}});
       }
-    }
-    return 'false';
+    
+    return false;
   }
 
-  $scope.shreyans = function(value, button){
+  $scope.updateFavourites = function(value, button){
     if(Meteor.user().profile.favourites)
     
     if( !$('#'+value._id).hasClass('active') )
@@ -213,9 +213,16 @@ app.controller('Groups-Favourite', ['$scope', 'alldata', function($scope, alldat
   }
 
   // promise.then(function(){
-    Meteor.subscribe('all-groups', function(){
-      $scope.groups = Groups.find({}).fetch();  
+  
+    console.log($scope.groupsloaded);
+    Meteor.call('delayfn',10000, function(){
+      Meteor.subscribe('all-groups', function(){
+        $scope.favs = Groups.find({}).fetch();  
+        $scope.groupsloaded = true;
+        $scope.$digest();
+      })  
     })
+    
     
   // })
 }])
@@ -223,6 +230,7 @@ app.controller('Groups-Favourite', ['$scope', 'alldata', function($scope, alldat
 app.controller('Group-Subscribe', ['$scope', 'alldata', 'toastr', function($scope, alldata, toastr){
   
   var promise = alldata.check();
+
 
   promise.then(function(){
     Meteor.subscribe('all-groups', function(){

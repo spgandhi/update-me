@@ -1,4 +1,4 @@
-var app = angular.module('update-me');
+ var app = angular.module('update-me');
 
 app.controller('Event-Email', ['$scope', 'url', function($scope, url){
 	$scope.url = url;

@@ -98,8 +98,10 @@ Meteor.startup(function () {
   			return false;	
   	},
 
-    'delayfn' : function(){
-      Meteor._sleepForMs(2000);
+    'delayfn' : function(val){
+      
+        Meteor._sleepForMs(val);
+
       return true;
     }
 

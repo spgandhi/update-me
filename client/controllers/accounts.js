@@ -87,8 +87,9 @@ app.controller('Register', ['$scope', 'toastr','$location', function($scope, toa
   }
 }])
 
-app.controller('Login', ['$scope', 'toastr', 'alldata', '$location', '$rootScope',  function($scope, toastr, alldata, $location, $rootScope){
-    
+
+app.controller('Login', ['$scope', 'toastr', 'alldata', '$location', '$auth', '$rootScope', '$reactive', function($scope, toastr, alldata, $location, $auth, $rootScope, $reactive){
+
   if(Meteor.user()){
     $location.path('/home');
   }
@@ -98,42 +99,46 @@ app.controller('Login', ['$scope', 'toastr', 'alldata', '$location', '$rootScope
     var l = alldata.LaddaBtn.create('#login-btn');
     l.start();
 
+    
+
     Meteor.call('checkEmail',(username), function(err,value){
       
-      // if(value){
-        Meteor.loginWithPassword(username, password, function(err){
-        
-          if(err){
-            toastr.error(err.reason, 'Error');
-          }else{
+      Meteor.loginWithPassword(username, password, function(err){
+    
+        if(err){
+          toastr.error(err.reason, 'Error');
+          l.stop();
+        }else{
 
-            var promise = alldata.check();
-            
-            promise.then(function(){
-
-              if("profile" in Meteor.user() && "name" in Meteor.user().profile){
-                $rootScope.user = Meteor.user().profile.name;
-              }else{
-                $rootScope.user = Meteor.user().emails[0].address;
-              }
-
-              $rootScope.canManageGroup = false;
-              org = Organizations.findOne({_id: {$in: Roles.getGroupsForUser(Meteor.userId())}});
-              if(org){
-                $rootScope.canManageGroup = true;
-              }
-
-            })
-            toastr.success('Welcome back!', 'Success');
-            $location.path('/home');
+          while(!Meteor.user()){
+            console.log('no user');
           }
 
-          l.stop();
+          console.log('found user');
 
-        });
-      // }else{
-        // toastr.error('You have not verifed your email.', 'Error');
-      // }
+          if( "profile" in Meteor.user() && "name" in Meteor.user().profile){
+            $rootScope.user = Meteor.user().profile.name;
+          }else{
+            $rootScope.user = Meteor.user().emails[0].address;
+          }
+
+          $rootScope.canManageGroup = false;
+          org = Organizations.findOne({_id: {$in: Roles.getGroupsForUser(Meteor.userId())}});
+          if(org){
+            $rootScope.canManageGroup = true;
+          }
+
+          toastr.success('Welcome back!', 'Success');
+          l.stop();
+          $location.path('/home');
+          
+        }
+
+          
+
+
+      });
+      
     })
     
   }

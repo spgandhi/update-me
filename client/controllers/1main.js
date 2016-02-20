@@ -40,11 +40,12 @@ app.service('alldata', ['$q', 'toastr', '$rootScope', function($q, toastr, $root
 
     if(!$rootScope.user){
       if(Meteor.userId()){
-        if("profile" in Meteor.user() && "name" in Meteor.user().profile){
-          $rootScope.user = Meteor.user().profile.name;
-        }else{
-          $rootScope.user = Meteor.user().emails[0].address;
-        }
+        // if("profile" in Meteor.user() && "name" in Meteor.user().profile){
+        //   $rootScope.user = Meteor.user().profile.name;
+        // }else{
+        //   $rootScope.user = Meteor.user().emails[0].address;
+        // }
+        $rootScope.user = Meteor.userId();
       } 
     }
     
@@ -118,8 +119,13 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
     $scope.todayEvents = Posts.find({post_status: 'publish', 'options.isEvent': true, start_time: {$gte: start, $lt:end}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')} }).fetch();
     $scope.upcomingEvents = Posts.find({'post_status':'publish', 'options.isEvent':true, start_time: {$gte: tomorrow_start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
     
-    $scope.favourites = Meteor.user().profile.favourites;
+    $scope.favourites = [];
 
+    if('favourites' in Meteor.user().profile)
+      $scope.favourites = Meteor.user().profile.favourites;
+    
+    console.log($scope.favourites);
+    console.log($scope.favourites.length);
     $scope.deadlinePost = Posts.find({'options.hasDeadline': true, deadline: {$gte: start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
 
 
@@ -238,13 +244,17 @@ app.run(function ($rootScope, $location) {
     var onlySuperAdmin = toState.data.onlySuperAdmin;
     if( Meteor.user() && onlySuperAdmin ){
       
-      Meteor.subscribe('organizations', function(){
-        org = Organizations.findOne({'name': 'DAIICT'}, {'fields': {'_id':1}});
+      // Meteor.subscribe('organizations', function(){
+      //   org = Organizations.findOne({'name': 'DAIICT'}, {'fields': {'_id':1}});
 
-        if(!org || !Roles.userIsInRole(Meteor.userId(), ['can-manage'], org._id) ){
-          $location.path('/home');
-        }  
-      })
+      //   if(!org || !Roles.userIsInRole(Meteor.userId(), ['can-manage'], org._id) ){
+      //     $location.path('/home');
+      //   }  
+      // })
+
+      if(Meteor.user().emails[0].address != 'spgandhi@live.com')
+        $location.path('/home');
+
 
       
     }

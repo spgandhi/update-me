@@ -2,34 +2,35 @@
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
-                Groups
+                Favourites
             </h1>
             <input ng-model="keyword" class="pull-left" type="text" placeholder="search">
             
         </div>
         <!-- /.col-lg-12 -->
-        <div class="col-lg-12">
+        <!-- <div ng-hide="groupsloaded">Loading</div> -->
+        <div style="position: absolute;width: 100%;height: 100%;background-image: url('/client/lib/images/loading_spin.gif')">Loading</div>
+        <!-- <div class="col-lg-12" ng-show="groupsloaded">
         	<table class="table">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
                         <th>Private</th>
-                        <!-- <th></th> -->
                         <th></th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="grp in groups | filter:keyword">
-                        <td>{{grp._id}}</td>
-                        <td>{{grp.name}}</td>
-                        <td>{{grp.options.isPrivate}}</td>
+                    <tr ng-repeat="fav in favs | filter:keyword">
+                        <td>{{fav._id}}</td>
+                        <td>{{fav.name}}</td>
+                        <td>{{fav.options.isPrivate}}</td>
                         <td>
-                            <button ng-click="shreyans(grp, this)" id="{{grp._id}}" ng-class="checkIfFavourite(grp._id)" class="btn btn-default" data-toggle="button"> <i class="fa fa-heart-o text"></i> <i class="fa fa-heart text-active text-danger"></i> </button></td>
+                            <button ng-click="updateFavourites(fav, this)" id="{{fav._id}}" ng-class="checkIfFavourite(fav._id)" class="btn btn-default" data-toggle="button"> <i class="fa fa-heart-o text"></i> <i class="fa fa-heart text-active text-danger"></i> </button></td>
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </div> -->
     </div>
 </div>
