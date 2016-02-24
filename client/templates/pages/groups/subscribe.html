@@ -2,10 +2,9 @@
     <div class="row">
         <div class="col-lg-6 col-centered">
             <h1 class="page-header">
-                Groups
-                <a class="btn btn-default btn-xs pull-right" herf="/#/organization/{{org_id}}/group/create">Add<i class="fa fa-plus"></i></a>
+                Subsciption
             </h1>
-            
+            <input ng-model="keyword" type="text" placeholder="Search" class="input-sm form-control">
         </div>
         <!-- /.col-lg-12 -->
         <div class="col-lg-6 col-centered">
@@ -17,7 +16,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="grp in grps">
+                    <tr ng-repeat="grp in grps | filter:keyword">
                         <td>{{grp.name}}</td>
                         <td class="pull-right">
                             <button type="button" ng-show="!isSubscribed(grp._id)" class="sub-btn btn btn-primary" ng-click="groupSubscribe(grp._id, grp.name)">Subscribe</button>

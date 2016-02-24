@@ -21,6 +21,11 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
           fields: {'name':1}
         })
         .fetch();  
+
+        $('.editable').keyup(function(){
+          $scope.contentLength = $('.editable').text().length;
+          $scope.$digest();          
+        })
     });
 
   })
@@ -34,7 +39,7 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
       clicks: []
     },
     created_by: Meteor.userId(),
-    created_at: Date.now(),
+    created_at: moment(),
     post_status: 'publish'
   }
 
@@ -61,6 +66,8 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
     sideBySide: true,
     useCurrent: true
   })
+
+  $scope.contentLength = $('.editable').text().length;
 
   $scope.checkboxChange = function(box){
     if(box == 'event' && $scope.newPost.options.isEvent){
@@ -301,7 +308,9 @@ app.controller('Posts-Edit', ['$scope', 'alldata' ,'toastr', '$stateParams', fun
 }])
 
 // Display
-app.controller('Posts', ['$scope', 'alldata', 'toastr','$location', function($scope, alldata, toastr, $location){
+app.controller('Posts', ['$scope', 'alldata', 'toastr','$location', '$rootScope', function($scope, alldata, toastr, $location, $rootScope){
+
+  $rootScope.updateme_loading = true;
 
   $scope.user_id = Meteor.userId();
   
@@ -315,8 +324,6 @@ app.controller('Posts', ['$scope', 'alldata', 'toastr','$location', function($sc
   promise.then(function(data){
 
       $scope.orgs = Organizations.find({},{fields:{_id:1}}).fetch();
-
-
 
       $scope.org_ids = [];
       $scope.grp_ids = [];
@@ -333,8 +340,8 @@ app.controller('Posts', ['$scope', 'alldata', 'toastr','$location', function($sc
       })
 
       $scope.posts = Posts.find({ $or: [ { 'group._id': { $in: $scope.grp_ids } } , {'created_by': Meteor.userId() } ] } ).fetch();
-      console.log($scope.posts);
 
+      $rootScope.updateme_loading = false;
 
   });
 

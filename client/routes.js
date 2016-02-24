@@ -213,8 +213,8 @@ angular.module('update-me').config(function($urlRouterProvider, $stateProvider, 
 
     })
 
-    .state('groups-favourite', {
-      url: '/groups/favourite',
+    .state('favourites', {
+      url: '/favourites',
       templateUrl: 'client/templates/pages/groups/groups-favourite.html',
       data: {
         requireLogin: true,

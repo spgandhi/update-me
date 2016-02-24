@@ -57,18 +57,44 @@ app.controller('Profile', ['$scope', 'toastr', function($scope, toastr){
 
 }])
 
-app.controller('Register', ['$scope', 'toastr','$location', function($scope, toastr, $location){
+app.controller('Register', ['$scope', 'toastr','$location', 'alldata', function($scope, toastr, $location, alldata){
+  
+  $scope.newUser = {
+    email: '',
+    password: '',
+    name: ''
+  }
   
   if(Meteor.user()){
     $location.path('/home');
   }
 
   $scope.register = function(){
+    
+
+    if($scope.newUser.email==''){
+      toastr.error('Please enter email.');
+      return;
+    }
+
+    if($scope.newUser.password==''){
+      toastr.error('Please enter password.');
+      return;
+    }
+
+    if($scope.newUser.name==''){
+      toastr.error('Please enter name.');
+      return;
+    }
+
+    var l = alldata.LaddaBtn.create('#register-btn');
+    l.start();
 
     Accounts.createUser({email: $scope.newUser.email, password: $scope.newUser.password, profile : {'name':$scope.newUser.name, 'favourites':[]}}, function(err){
       
       if(err){
         toastr.error(err.reason, 'Error');
+        l.stop();
       }else{
         toastr.success('Registration Successful', 'Success');
         $scope.newUser = [];
@@ -79,6 +105,7 @@ app.controller('Register', ['$scope', 'toastr','$location', function($scope, toa
               $location.path('/login');
             })  
           }
+          l.stop();
         })
         
       }

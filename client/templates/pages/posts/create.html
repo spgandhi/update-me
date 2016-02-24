@@ -11,21 +11,26 @@
         	<form>
               
               <!-- Organiztion Name Field -->
-            <div class="form-group" ng-class="{'has-error' : newPost.title.length==50}">
+            <div class="form-group" ng-class="{'has-error' : newPost.title.length >= 50}">
                 <label>Title</label>
                 <span class="pull-right">{{newPost.title.length}}/50</span>
-                <input ng-model="newPost.title" type="text" class="form-control" placeholder="Title" ng-change="charLimit(50, 'title')">
+                <input ng-model="newPost.title" type="text" class="form-control" ng-change="charLimit(50, 'title')">
             </div>
 
             <!-- Organiztion Name Field -->
-            <div class="form-group">
+            <div class="form-group" ng-class="{'has-error' : contentLength >= 500}">
                 <label>Content</label>
-                <!-- <span class="pull-right">{{editorLength}}/500</span> -->
+                <span class="pull-right">{{contentLength}}/500</span>
                 <div class="editable form-control"></div>
+                <p>Select the text to format</p>
             </div>
 
+
             
-            <script>var editor = new MediumEditor('.editable', {targetBlank: true, anchor:{linkValidation: true}});</script>
+            <script>var editor = new MediumEditor('.editable', {targetBlank: true, anchor:{linkValidation: true}});
+
+
+            </script>
 
               <!-- Private Organization Checkbox -->
             <div class="checkbox">
@@ -67,7 +72,7 @@
 
             <div class="form-group">
                 <label for="sel1">Select Group:</label>
-                    <select class="form-control" ng-model="newPost.group" ng-options="group as group.name for group in groups track by group._id">
+                    <select class="form-control" ng-model="newPost.group" ng-options="group as group.name for group in groups | orderBy:'name' track by group._id">
                             <option></option>
                     </select>
             </div>

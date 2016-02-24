@@ -20,7 +20,7 @@ Meteor.publish('allUsers', function(){
   return Meteor.users.find({},{'emails':1});
 })
 
-Meteor.publish('posts', function(reason){
+Meteor.publish('posts' , function(reason){
   // return Posts.find({'group._id': {$in: Roles.getGroupsForUser( this.userId) }});
   // if(reason == 'frontend')
   // 	return Posts.find({post_status : 'publish'});

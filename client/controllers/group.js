@@ -187,19 +187,19 @@ app.controller('Group-Single', ['$scope', 'alldata', '$meteor', '$stateParams', 
 }])
 
 
-app.controller('Groups-Favourite', ['$scope', function($scope){
-  // var promise = alldata.check();
-  
+app.controller('Groups-Favourite', ['$scope', '$rootScope', function($scope, $rootScope){
+
+  $rootScope.updateme_loading = true;
   
   $scope.checkIfFavourite = function(grp_id){
     if( Meteor.user() && 'profile' in Meteor.user() && 'favourites' in Meteor.user().profile ){
           if( Meteor.user().profile.favourites.indexOf(grp_id) != -1)
-            return true;
+            return 'active';
       }else{
         Meteor.users.update( {_id:Meteor.userId()}, {$set: {'profile.favourites': []}});
       }
     
-    return false;
+    return 'false';
   }
 
   $scope.updateFavourites = function(value, button){
@@ -215,27 +215,30 @@ app.controller('Groups-Favourite', ['$scope', function($scope){
   // promise.then(function(){
   
     console.log($scope.groupsloaded);
-    Meteor.call('delayfn',10000, function(){
+    
       Meteor.subscribe('all-groups', function(){
         $scope.favs = Groups.find({}).fetch();  
         $scope.groupsloaded = true;
-        $scope.$digest();
+        $rootScope.updateme_loading = false;
+        $rootScope.$digest();
       })  
-    })
+    
     
     
   // })
 }])
 
-app.controller('Group-Subscribe', ['$scope', 'alldata', 'toastr', function($scope, alldata, toastr){
+app.controller('Group-Subscribe', ['$scope', 'alldata', 'toastr', '$rootScope',function($scope, alldata, toastr, $rootScope){
   
+  $rootScope.updateme_loading = true;
   var promise = alldata.check();
 
 
   promise.then(function(){
     Meteor.subscribe('all-groups', function(){
       $scope.grps = Groups.find({}).fetch();
-      // console.log($scope.grps);
+      $rootScope.updateme_loading = false;
+      $rootScope.$digest();
     })
   })
 

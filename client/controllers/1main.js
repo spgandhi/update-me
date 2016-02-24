@@ -1,6 +1,6 @@
 var app = angular.module('update-me');
 
-app.constant('url', 'http://localhost:3000/#/home');
+app.constant('homeurl', 'http://localhost:3000/#/');
 
 app.service('alldata', ['$q', 'toastr', '$rootScope', function($q, toastr, $rootScope){
 
@@ -99,6 +99,11 @@ app.service('alldata', ['$q', 'toastr', '$rootScope', function($q, toastr, $root
 
 app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', function($scope, alldata, $meteor, toastr, $rootScope){
 
+  $scope.hide_finished_events = true;
+  // console.log($scope.hide_finished_events);
+
+  $rootScope.updateme_loading = true;
+
   $scope.yesGroup = false;
   
   var promise = alldata.check();
@@ -108,6 +113,8 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
     var start = new Date();
     start.setHours(0,0,0,0);
 
+    $scope.todayStart = start;
+
     var end = new Date();
     end.setHours(23,59,59,999);
 
@@ -115,19 +122,32 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
     tomorrow_start.setDate(tomorrow_start.getDate() + 1);
     tomorrow_start.setHours(0,0,0,0);
 
-    $scope.posts = Posts.find({post_status: 'publish', 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
+    var weekBack = new Date();
+    weekBack.setHours(0,0,0,0);
+    weekBack.setDate(weekBack.getDate() - 7);
+    weekBack = Date.parse(weekBack);
+
+    console.log(moment());
+
+    postQuery = {
+      post_status: 'publish', 
+      'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')},
+      created_at : {$gte: weekBack}
+    };
+
+    $scope.posts = Posts.find(postQuery).fetch();
     $scope.todayEvents = Posts.find({post_status: 'publish', 'options.isEvent': true, start_time: {$gte: start, $lt:end}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')} }).fetch();
     $scope.upcomingEvents = Posts.find({'post_status':'publish', 'options.isEvent':true, start_time: {$gte: tomorrow_start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
-    
+    console.log($scope.posts);
     $scope.favourites = [];
+
 
     if('favourites' in Meteor.user().profile)
       $scope.favourites = Meteor.user().profile.favourites;
     
-    console.log($scope.favourites);
-    console.log($scope.favourites.length);
     $scope.deadlinePost = Posts.find({'options.hasDeadline': true, deadline: {$gte: start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
 
+    $rootScope.updateme_loading = false;
 
   })
 
@@ -189,14 +209,21 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
 
   }
     
-
   $scope.postOpen = function(id, location){
     Posts.update({_id: id}, {$push: {'options.clicks' : {location: location, time: Date.now()}}})
+  }
+
+  $scope.ifAnySubscription = function(){
+    // Roles.getGroupsForUser(Meteor.userId());
+    return Groups.find({_id: {$in: Roles.getGroupsForUser(Meteor.userId())}}).count();
   }
 
 }])
 
 app.controller('Main', ['$scope','$rootScope', 'alldata' ,'Page-Title', 'toastr','$location', function ($scope, $rootScope, alldata, $page, toastr, $location) {  
+
+  // $scope.hide_finished_events = true;
+  // $rootScope.hide_finished_events = $scope.hide_finished_events;
 
   var promise = alldata.check();
   
@@ -211,21 +238,22 @@ app.controller('Main', ['$scope','$rootScope', 'alldata' ,'Page-Title', 'toastr'
 
   })
 
-
   $scope.logout = function(){
       
+    $rootScope.updateme_loading = true;
+
     Meteor.call('logoutServer', function(err, result){
-      if(err)
+      if(err){
         toastr.error('Could not logout!', 'Error');
-      else{
+        $rootScope.updateme_loading = false;
+      }else{
         delete $rootScope.user;
+        $rootScope.updateme_loading = false;
         $location.path('/login');
         toastr.success('Loged Out!', 'Success');
       }
     })
-
-
-
+    
   }
 
     
