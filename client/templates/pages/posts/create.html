@@ -72,7 +72,7 @@
 
             <div class="form-group">
                 <label for="sel1">Select Group:</label>
-                    <select class="form-control" ng-model="newPost.group" ng-options="group as group.name for group in groups | orderBy:'name' track by group._id">
+                    <select class="form-control" ng-model="newPost.group" ng-options="group as group.name for group in groups track by group._id">
                             <option></option>
                     </select>
             </div>

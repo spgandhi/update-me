@@ -26,15 +26,17 @@ app.controller('Event-Email', ['$scope', 'homeurl', function($scope, homeurl){
         data+='</div></body></html>';
 
         
-        $scope.data = data;
+        // $scope.data = data;
 
         $scope.emailContent = {events : $scope.posts, deadline: $scope.deadline};
 
-        Meteor.call('morningMail',data,function(err, value){
-            if(err)
-                console.log(err)
-            else
-                console.log(value);
-        })
+        // Meteor.call('morningMail',data,function(err, value){
+        //     if(err)
+        //         console.log(err)
+        //     else
+        //         console.log(value);
+
+        //     $scope.data = value;
+        // })
     })
 }])

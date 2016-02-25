@@ -127,7 +127,6 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
     weekBack.setDate(weekBack.getDate() - 7);
     weekBack = Date.parse(weekBack);
 
-    console.log(moment());
 
     postQuery = {
       post_status: 'publish', 
@@ -135,18 +134,41 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
       created_at : {$gte: weekBack}
     };
 
-    $scope.posts = Posts.find(postQuery).fetch();
-    $scope.todayEvents = Posts.find({post_status: 'publish', 'options.isEvent': true, start_time: {$gte: start, $lt:end}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')} }).fetch();
-    $scope.upcomingEvents = Posts.find({'post_status':'publish', 'options.isEvent':true, start_time: {$gte: tomorrow_start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
-    console.log($scope.posts);
-    $scope.favourites = [];
+    todayQuery = {
+      post_status: 'publish',
+      'options.isEvent': true,
+      start_time: {$gte: start, $lt:end},
+      'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')},
+      created_at: {$gte: weekBack}
+    }
 
+    upcomingQuery = {
+      post_status: 'publish',
+      'options.isEvent': true,
+      start_time: {$gte: tomorrow_start},
+      'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')},
+      created_at: {$gte: weekBack}
+    }
+
+    deadlineQuery = {
+      'post_status': 'publish',
+      'options.hasDeadline': true,
+      deadline: {$gte: start},
+      'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')},
+      created_at: {$gte: weekBack}
+
+    }
+
+    $scope.posts = Posts.find(postQuery).fetch();
+    $scope.todayEvents = Posts.find(todayQuery).fetch();
+    $scope.upcomingEvents = Posts.find(upcomingQuery).fetch();
+    $scope.deadlinePost = Posts.find(deadlineQuery).fetch();
+
+    $scope.favourites = [];
 
     if('favourites' in Meteor.user().profile)
       $scope.favourites = Meteor.user().profile.favourites;
     
-    $scope.deadlinePost = Posts.find({'options.hasDeadline': true, deadline: {$gte: start}, 'group._id': {$in: Roles.getGroupsForUser(Meteor.userId(), 'is-subscribed')}}).fetch();
-
     $rootScope.updateme_loading = false;
 
   })

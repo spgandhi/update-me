@@ -39,7 +39,7 @@ app.controller('Post-Create', ['$scope', 'alldata', '$meteor', 'toastr', functio
       clicks: []
     },
     created_by: Meteor.userId(),
-    created_at: moment(),
+    created_at: Date.now(),
     post_status: 'publish'
   }
 
