@@ -199,7 +199,10 @@ app.controller('Posts-Edit', ['$scope', 'alldata' ,'toastr', '$stateParams', fun
     $scope.post = Posts.findOne({_id:$stateParams['id']});
     
 
-    org_id = Organizations.findOne({'name':'DAIICT'})._id;
+    orgtemp = Organizations.findOne({'name':'DAIICT'});
+    org_id = '';
+    if(orgtemp)
+      org_id = orgtemp._id;
     
     if(Roles.userIsInRole(Meteor.userId(), ['can-manage'], org_id)){
       $scope.userRole  = 'superAdmin';

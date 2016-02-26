@@ -1,25 +1,20 @@
- // SyncedCron.config({
- //    collectionName: 'Posts'
- //  });
-
 SyncedCron.add({
-    name: 'email digest',
-    schedule: function(parser) {
-      // parser is a later.parse object
-      return parser.text('at 08:00 am');
-    },
-    job: function() {
-      Meteor.call('morningMail', function(){
-        console.log('Emails sent by cron job');
-      })
-    }
-  });
+  name: 'email digest',
+  schedule: function(parser) {
+    // parser is a later.parse object
+    return parser.text('at 08:00 am');
+  },
+  job: function() {
+    Meteor.call('morningMail', function(){
+      console.log('Emails sent by cron job');
+    })
+  }
+});
 
 Meteor.startup(function () {
   // code to run on server at startup
 
-    // process.env.MAIL_URL = "smtp://postmaster@sandbox817726d09c0545b2ac7b5b07d7f5685a.mailgun.org:e92982c9eb9e63e5c1b9874ccf42b658@smtp.mailgun.org:587/";
-    process.env.MAIL_URL = "smtp://shreyans.p.gandhi@gmail.com:aerogandhi@95@smtp.gmail.com:465/"
+  process.env.MAIL_URL = "smtp://shreyans.p.gandhi@gmail.com:aerogandhi@95@smtp.gmail.com:465/";
 
 SyncedCron.start();  
 
@@ -350,42 +345,42 @@ tr{
 </style>
 </head>
 
-<body>
-
+<body style="background:#f6f6f6">
+<center>
 <table class="body-wrap">
   <tr>
     <td></td>
     <td class="container" width="600">
       <div class="content">
-        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+        <table class="main" width="100%" cellpadding="10" cellspacing="10"  style="background:white; border: 1px solid #e9e9e9; border-radius:3px; padding:20px;">
           <tr>
             <td class="content-wrap aligncenter">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1>Update Me Daily Digest</h1>
+                    <center><h1>Update Me Daily Digest<br></h1></center>
                   </td>
                 </tr>
                 <tr>
                   <td class="content-block">
                     <table width="100%">
                       <tr>
-                        <td style="text-align:left">Dear Shreyans</td>
-                        <td class="alignright">` + moment().format('dddd, DD/MM/YYYY') + `</td>
+                        <td style="text-align:left" align="left">Dear Shreyans</td>
+                        <td class="alignright" align="right">` + moment().format('dddd, DD/MM/YYYY') + `</td>
                       </tr>
                     </table>
                   </td>
 
                 </tr>
                                 <tr>
-                                  <td style="text-align:left">We thought you might be interested in having a look at the events up for you today.</td>
+                                  <td style="text-align:left"><br>We thought you might be interested in having a look at the events up for you today.<br><br></td>
                                 </tr>
                 <tr>
                   <td class="content-block">
                     <table class="invoice">
                       <tr>
                         <td>
-                          <table class="invoice-items" cellpadding="0" cellspacing="0">
+                          <table class="invoice-items" cellpadding="0" cellspacing="0" style="border-collapse: collapse; border-bottom:1px solid #f0f0f0">
                             
 
                             
@@ -398,12 +393,12 @@ tr{
         console.log(posts);
         for(j=0; j<posts.length; j++){
             value = posts[j];
-            data += '<tr style="white-space:nowrap;">';
-            data += '<td>'+ value.title;
+            data += '<tr style="white-space:nowrap; border-top:1px solid #f0f0f0" >';
+            data += '<td style="padding:10px">'+ value.title;
             if(value.venue)
               data += ' @ ' + value.venue;
-             data += '<span style="border:1px solid; border-radius: 5px; padding: 2px 5px; margin-left: 5px"> '+ value.group.name+'</span></td>';
-            data += '<td class="alignright" style="min-width:70px;">'+ moment(value.start_time).format('h:mm a')+'</td></tr>';
+             data += ' <span style="border:1px solid; border-radius: 5px; padding: 2px 5px; margin-left: 5px">'+ value.group.name+'</span></td>';
+            data += '<td class="alignright" align="right" style="min-width:70px; padding:10px">'+ moment(value.start_time).format('h:mm a')+'</td></tr>';
         };
 
         data+=` </table>
@@ -415,24 +410,26 @@ tr{
                 
                 <tr>
                   <td class="content-block" style="text-align:left">
-                    Team,<br> Update Me                 </td>
+                    <br><br>Team,<br> Update Me                 </td>
                 </tr>
               </table>
             </td>
           </tr>
         </table>
         <div class="footer">
-          <table width="100%">
-            <tr>
-              <td class="aligncenter content-block"> <a href="http://localhost:3000/#/profile">unsubscribe?</a></td>
-            </tr>
-          </table>
+          
+            <table width="100%">
+              <tr>
+                <td class="aligncenter content-block" align="center"> <a href="http://localhost:3000/#/profile">Unsubscribe?</a></td>
+              </tr>
+            </table>
+          
         </div></div>
     </td>
     <td></td>
   </tr>
 </table>
-
+</center>
 </body>
 </html>`;
 
