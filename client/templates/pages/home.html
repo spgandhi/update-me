@@ -1,6 +1,8 @@
-<div>
+<div class="col-lg-12" style="margin: 0 0 20px 0">
 	<input type="checkbox" ng-model="hide_finished_events" ng-change="reload()"> Hide Finished Events
+	<input type="checkbox" ng-model="only_7_days" ng-change="reload()"> Only Last 7 Days
 </div>
+
 <div class="col-lg-4">
 
 	<div ng-show="ifAnySubscription()==0" class="text-center">
@@ -19,7 +21,7 @@
 
 		<!-- All Posts -->
 		<ul class="list-group alt">
-			<li class="list-group-item" ng-repeat="post in posts | orderBy:'-created_at' | filter:filter | filter:keywordfilter" ng-hide="hide_finished_events && ((post.options.isEvent && post.start_time < todayStart) || (post.options.hasDeadline  && post.deadline < todayStart))">
+			<li class="list-group-item" ng-repeat="post in posts | orderBy:'-created_at' | filter:filter | filter:keywordfilter" ng-hide="(only_7_days && post.created_at < weekBack) || (hide_finished_events && ((post.options.isEvent && post.start_time < todayStart) || (post.options.hasDeadline  && post.deadline < todayStart)))">
 		    	<div class="media">
 		      		<div class="pull-right  m-t-sm">
 		        		<i class="fa fa-circle text-success" ng-show="post.options.isEvent" data-toggle="tooltip" data-placement="right" data-original-title="Event" title="Event"></i>
@@ -58,7 +60,7 @@
 
 
 			<ul class="list-group alt">
-			  	<li ng-init="filter.group._id = fav" ng-repeat="post in groupPost | orderBy:'-created_at'" class="list-group-item animated slideInLeft"  ng-hide="hide_finished_events && ((post.options.isEvent && post.start_time < todayStart) || (post.options.hasDeadline  && post.deadline < todayStart))">
+			  	<li ng-init="filter.group._id = fav" ng-repeat="post in groupPost | orderBy:'-created_at'" class="list-group-item animated slideInLeft"  ng-hide="(only_7_days && post.created_at < weekBack) || (hide_finished_events && ((post.options.isEvent && post.start_time < todayStart) || (post.options.hasDeadline  && post.deadline < todayStart)))">
 				    <div class="media">
 				      	<div class="pull-right m-t-sm">
 				        	<i class="fa fa-circle text-success" ng-show="post.options.isEvent"></i>
@@ -104,7 +106,7 @@
 
 		<div ng-show="todayEvents.length==0" class="text-container">No events today</div>
 	    <ul class="list-group alt">
-	        <li class="list-group-item" ng-repeat="post in todayEvents | orderBy:'-start_time'" ng-hide="hide_finished_events && ((post.options.isEvent && post.start_time < todayStart) || (post.options.hasDeadline  && post.deadline < todayStart))">
+	        <li class="list-group-item" ng-repeat="post in todayEvents | orderBy:'-start_time'" ng-hide="(only_7_days && post.created_at < weekBack) || (hide_finished_events && ((post.options.isEvent && post.start_time < todayStart) || (post.options.hasDeadline  && post.deadline < todayStart)))">
 	          	<div class="media">
 	            	<div class="pull-right media-xs text-center text-muted"> 
 	              		<span ng-if="post.options.isEvent">

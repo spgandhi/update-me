@@ -100,6 +100,7 @@ app.service('alldata', ['$q', 'toastr', '$rootScope', function($q, toastr, $root
 app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', function($scope, alldata, $meteor, toastr, $rootScope){
 
   $scope.hide_finished_events = true;
+  $scope.only_7_days = true;
   // console.log($scope.hide_finished_events);
 
   $rootScope.updateme_loading = true;
@@ -126,6 +127,8 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
     weekBack.setHours(0,0,0,0);
     weekBack.setDate(weekBack.getDate() - 7);
     weekBack = Date.parse(weekBack);
+
+    $scope.weekBack = weekBack;
 
 
     postQuery = {
@@ -243,9 +246,6 @@ app.controller('Home', ['$scope', 'alldata', '$meteor', 'toastr', '$rootScope', 
 }])
 
 app.controller('Main', ['$scope','$rootScope', 'alldata' ,'Page-Title', 'toastr','$location', function ($scope, $rootScope, alldata, $page, toastr, $location) {  
-
-  // $scope.hide_finished_events = true;
-  // $rootScope.hide_finished_events = $scope.hide_finished_events;
 
   var promise = alldata.check();
   
